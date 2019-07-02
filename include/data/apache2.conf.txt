@@ -4,8 +4,8 @@
        ServerAlias *.%hostname
        ServerAdmin %adminemail
        DocumentRoot %docroot
-       ErrorLog /var/logs/apache2/%errorlog
-       CustomLog /var/logs/apache2/%customlog combined common
+       ErrorLog /var/log/apache2/%errorlog
+       CustomLog /var/log/apache2/%customlog common
        <Directory %docroot>
                Options Indexes FollowSymLinks MultiViews
                AllowOverride All

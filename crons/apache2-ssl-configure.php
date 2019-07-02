@@ -1,4 +1,5 @@
 <?php
+sleep(mt_rand(1, 59));
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php';
 
@@ -35,20 +36,20 @@ while( $row = $GLOBALS['APIDB']->fetchArray($result))
     $domainids[$row['id']] = $row['id'];
 
 if (count($domainids) > 0) {
-    $sh = array();
     $sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE (`apache2-ssl-configured` = 0 OR `apache2-ssl-configured` > UNIX_TIMESTAMP()) AND `domain-id` IN (" . implode(', ', $domainids) . ')';
     $result = $GLOBALS['APIDB']->queryF($sql);
     while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
         $domain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '" . $jump['domain-id'] . "'"));
-        $sh[] = 'unlink "' . __DIR__ . DS . 'configure-apache2-ssl-' . ($hostname = $jump['sub-domain'] . '.' . $jump['hostname']) . '.sh"';
+        $hostname = $jump['sub-domain'] . '.' . $jump['hostname'];
+        $sh = array();
+        $sh[] = 'unlink "' . __DIR__ . DS . 'configure-apache2-ssl-' . $hostname . '.sh"';
         $sh[] = 'a2dissite ' . $hostname. '-ssl';
         $sh[] = 'rm ' . API_SITES_AVAILABLE_PATH . DIRECTORY_SEPARATOR . $hostname . '-ssl.conf';
         if (file_exists($file = __DIR__ . DS . 'apache2-' . $hostname . '-ssl.conf'))
             unlink($file);
         $conf = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'apache2-ssl.conf.txt');
         $conf = str_replace('%adminemail', $domain['admin-email'], $conf);
-        $conf = str_replace('%hostname', $hostname, $conf);
-        $conf = str_replace('%hostname', $hostname, str_replace('%docroot', $jump['apache2-path'], $conf));
+        $conf = str_replace('%docroot', API_WWW_PATH . DS . $hostname, $conf);
         $conf = str_replace('%hostname', $hostname, str_replace('%errorlog', $jump['apache2-error-log'], $conf));
         $conf = str_replace('%hostname', $hostname, str_replace('%customlog', $jump['apache2-access-log'], $conf));
         $conf = str_replace('%sslpath', API_SSL_CERTIFICATES_PATH, str_replace('%rootsslcertfile', $domain['root-ssl-certificate-file'], $conf));
@@ -57,9 +58,12 @@ if (count($domainids) > 0) {
         $conf = str_replace('%sslpath', API_SSL_CERTIFICATES_PATH, str_replace('%subsslcertfile', $domain['sub-ssl-certificate-file'], $conf));
         $conf = str_replace('%sslpath', API_SSL_CERTIFICATES_PATH, str_replace('%subsslcertkey', $domain['sub-ssl-certificate-key-file'], $conf));
         $conf = str_replace('%sslpath', API_SSL_CERTIFICATES_PATH, str_replace('%subsslchainfile', $domain['sub-ssl-ca-certificate-file'], $conf));
+        $conf = str_replace('%hostname', $hostname, $conf);
         file_put_contents($file, $conf);
         $sh[] = 'mv "' . $file . '" "' . API_SITES_AVAILABLE_PATH . DIRECTORY_SEPARATOR . $hostname . '-ssl.conf"';
-        $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'zones.php.txt');
+        if ($domain['apache2-ssl-config-file'] != "%site_available/%hostname-ssl.conf")
+            @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `apache2-ssl-config-file` = '%site_available/%hostname-ssl.conf' where `id` = " . $domain['id']);
+            $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'zones.php.txt');
         $php = str_replace('%hostname', $hostname, $php);
         $php = str_replace('%domain', $domain['domain'], $php);
         $php = str_replace('%zoneurl', API_ZONES_API_URL, $php);
@@ -67,20 +71,21 @@ if (count($domainids) > 0) {
         $php = str_replace('%zonepass', API_ZONES_PASSWORD_URL, $php);
         file_put_contents($file = __DIR__ . DS . 'zones-ssl-' . $hostname . '.php', $php);
         $sh[] = 'php -q "' . $file . '"';
-        $sh[] = 'cp "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '/deployment.php" "' . __DIR__ . "/deployment-$hostname.php\"";
-        $sh[] = 'rm -Rf "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '"';
-        $sh[] = 'git clone https://github.com/Chronolabs-Cooperative/Jump-API-PHP.git "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '"';
-        $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'git-cloned.php.txt');
+        $sh[] = 'cp "' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/deployment.php" "' . __DIR__ . "/deployment-$hostname.php\"";
+        $sh[] = 'rm -Rf "' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '"';
+        $sh[] = 'cd "' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '"';
+        $sh[] = 'git pull';
+        $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'git-pulled.php.txt');
         $php = str_replace('%jumpid', $jump['id'], $php);
-        file_put_contents($file = __DIR__ . DS . 'git-cloned-' . $hostname . '.php', $php);
+        file_put_contents($file = __DIR__ . DS . 'git-pulled-' . $hostname . '.php', $php);
         $sh[] = 'php -q "' . $file . '"';
-        $sh[] = 'chown -Rf www-data:www-data "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '"';
-        $sh[] = 'chmod -Rf 0777 "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '"';
-        $sh[] = 'rm "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '/deployment.php';
-        $sh[] = 'mv "' . __DIR__ . "/deployment-$hostname.php\" \"" . str_replace('%hostname', $hostname, $jump['apache2-path']) . '/deployment.php\"';
-        $sh[] = "sed -i 's/snails.email/" . $domain['domain'] . "/g' \"" . str_replace('%hostname', $hostname, $jump['apache2-path']) . '/.htaccess\"';
+        $sh[] = 'chown -Rf www-data:www-data "' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '"';
+        $sh[] = 'chmod -Rf 0777 "' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '"';
+        $sh[] = 'rm ' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/deployment.php';
+        $sh[] = 'mv ' . __DIR__ . "/deployment-$hostname.php " . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/deployment.php';
+        $sh[] = "sed -i 's/snails.email/" . $domain['domain'] . "/g' " . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/.htaccess';
         $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'htaccess-ssl.php.txt');
-        $php = str_replace('%file', str_replace('%hostname', $hostname, $jump['apache2-path']) . '/.htaccess', $php);
+        $php = str_replace('%file', str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/.htaccess', $php);
         file_put_contents($file = __DIR__ . DS . 'htaccess-ssl-' . $hostname . '.php', $php);
         $sh[] = 'php -q "' . $file . '"';
         $sh[] = 'a2ensite ' . ($hostname = $jump['sub-domain'] . '.' . $jump['hostname']) . '-ssl';
@@ -89,6 +94,14 @@ if (count($domainids) > 0) {
         $php = str_replace('%jumpid', $jump['id'], $php);
         file_put_contents($file = __DIR__ . DS . 'apache2-ssl-' . $hostname . '.php', $php);
         $sh[] = 'php -q "' . $file . '"';
-        file_put_contents(__DIR__ . DS . 'configure-apache2-ssl-' . $hostname . '.sh', implode("\n", $sh));
+        file_put_contents($cmd = __DIR__ . DS . 'configure-apache2-ssl-' . $hostname . '.sh', implode("\n", $sh));
+        $sh = array();
+        if (!file_exists($file = __DIR__ . DS . 'configure.sh'))
+            $sh[] = "rm " . $file . "";
+        else {
+            $sh = explode("\n", file_get_contents($file));
+        }
+        $sh[] = "sh '$cmd'";
+        file_put_contents($file, implode("\n", $sh));
     }
 }

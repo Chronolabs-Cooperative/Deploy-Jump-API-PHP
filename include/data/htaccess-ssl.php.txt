@@ -19,7 +19,8 @@
  * @link			https://github.com/Chronolabs-Cooperative/Zones-API-PHP
  */
 
-unlink __FILE__;
+unlink (__FILE__);
+
 define('API_HTACCESS_FILE', '%file');
 
 $htaccess = explode("\n", file_get_content(API_HTACCESS_FILE));

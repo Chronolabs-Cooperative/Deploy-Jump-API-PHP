@@ -1,4 +1,4 @@
-Include "%awstatspath/awstats.$domain.conf"
+Include "%awstatspath/awstats.%domain.conf"
 
 LogFile="/var/log/apache2/%logfile"
 

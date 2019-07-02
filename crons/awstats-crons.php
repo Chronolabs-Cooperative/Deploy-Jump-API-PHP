@@ -1,4 +1,5 @@
 <?php
+sleep(mt_rand(1, 59));
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php';
 

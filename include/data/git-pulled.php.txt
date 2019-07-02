@@ -22,7 +22,8 @@
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php';
 
-unlink __FILE__;
+unlink (__FILE__);
+
 
 define('API_JUMPID', '%jumpid');
 

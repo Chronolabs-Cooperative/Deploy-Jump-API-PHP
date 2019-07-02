@@ -1,4 +1,5 @@
 <?php
+sleep(mt_rand(1, 59));
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php';
 
@@ -29,12 +30,13 @@ if ($staters = APICache::read('apache2-configure'))
     $seconds = 1800;
 }
 
-$sh = array();
 $sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `apache2-configured` = 0 OR `apache2-configured` > UNIX_TIMESTAMP()";
 $result = $GLOBALS['APIDB']->queryF($sql);
 while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
     $domain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '" . $jump['domain-id'] . "'"));
-    $sh[] = 'unlink "' . __DIR__ . DS . 'configure-apache2-' . ($hostname = $jump['sub-domain'] . '.' . $jump['hostname']) . '.sh"';
+    $hostname = $jump['sub-domain'] . '.' . $jump['hostname'];
+    $sh = array();
+    $sh[] = 'unlink "' . __DIR__ . DS . 'configure-apache2-' . $hostname . '.sh"';
     $sh[] = 'a2dissite ' . $hostname;
     $sh[] = 'rm ' . API_SITES_AVAILABLE_PATH . DIRECTORY_SEPARATOR . $hostname . '.conf';
     if (file_exists($file = __DIR__ . DS . 'apache2-' . $hostname . '.conf'))
@@ -42,11 +44,13 @@ while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
     $conf = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'apache2.conf.txt');
     $conf = str_replace('%adminemail', $domain['admin-email'], $conf);
     $conf = str_replace('%hostname', $hostname, $conf);
-    $conf = str_replace('%hostname', $hostname, str_replace('%docroot', $jump['apache2-path'], $conf));
+    $conf = str_replace('%docroot', API_WWW_PATH . DS . $hostname, $conf);
     $conf = str_replace('%hostname', $hostname, str_replace('%errorlog', $jump['apache2-error-log'], $conf));
     $conf = str_replace('%hostname', $hostname, str_replace('%customlog', $jump['apache2-access-log'], $conf));
     file_put_contents($file, $conf);
     $sh[] = 'mv "' . $file . '" "' . API_SITES_AVAILABLE_PATH . DIRECTORY_SEPARATOR . $hostname . '.conf"';
+    if ($domain['apache2-config-file'] != "%site_available/%hostname.conf")
+        @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `apache2-config-file` = '%site_available/%hostname.conf' where `id` = " . $domain['id']);
     $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'zones.php.txt');
     $php = str_replace('%hostname', $hostname, $php);
     $php = str_replace('%domain', $domain['domain'], $php);
@@ -55,24 +59,42 @@ while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
     $php = str_replace('%zonepass', API_ZONES_PASSWORD_URL, $php);
     file_put_contents($file = __DIR__ . DS . 'zones-' . $hostname . '.php', $php);
     $sh[] = 'php -q "' . $file . '"';
-    $sh[] = 'cp "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '/deployment.php" "' . __DIR__ . "/deployment-$hostname.php\"";
-    $sh[] = 'rm -Rf "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '"';
-    $sh[] = 'git clone https://github.com/Chronolabs-Cooperative/Jump-API-PHP.git "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '"';
-    $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'git-cloned.php.txt');
-    $php = str_replace('%jumpid', $jump['id'], $php);
-    file_put_contents($file = __DIR__ . DS . 'git-cloned-' . $hostname . '.php', $php);
-    $sh[] = 'php -q "' . $file . '"';
-    $sh[] = 'chown -Rf www-data:www-data "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '"';
-    $sh[] = 'chmod -Rf 0777 "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '"';
-    $sh[] = 'rm "' . str_replace('%hostname', $hostname, $jump['apache2-path']) . '/deployment.php';
-    $sh[] = 'mv "' . __DIR__ . "/deployment-$hostname.php\" \"" . str_replace('%hostname', $hostname, $jump['apache2-path']) . '/deployment.php\"';
-    $sh[] = "sed -i 's/snails.email/" . $domain['domain'] . "/g' \"" . str_replace('%hostname', $hostname, $jump['apache2-path']) . '/.htaccess\"';
-    $sh[] = 'a2ensite ' . ($hostname = $jump['sub-domain'] . '.' . $jump['hostname']);
+    $sh[] = 'cp ' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/deployment.php ' . __DIR__ . "/deployment-$hostname.php";
+    if (!is_dir(str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . DS . '.git')) {
+        $sh[] = 'rm -Rf ' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '';
+        $sh[] = 'git clone https://github.com/Chronolabs-Cooperative/Jump-API-PHP.git "' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '"';
+        $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'git-cloned.php.txt');
+        $php = str_replace('%jumpid', $jump['id'], $php);
+        file_put_contents($file = __DIR__ . DS . 'git-cloned-' . $hostname . '.php', $php);
+        $sh[] = 'php -q "' . $file . '"';
+    } else {
+        $sh[] = 'cd ' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '';
+        $sh[] = 'git pull';
+        $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'git-pulled.php.txt');
+        $php = str_replace('%jumpid', $jump['id'], $php);
+        file_put_contents($file = __DIR__ . DS . 'git-cloned-' . $hostname . '.php', $php);
+        $sh[] = 'php -q "' . $file . '"';
+    }
+    $sh[] = 'chown -Rf www-data:www-data "' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '"';
+    $sh[] = 'chmod -Rf 0777 "' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '"';
+    $sh[] = 'rm ' . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/deployment.php';
+    $sh[] = 'mv ' . __DIR__ . "/deployment-$hostname.php " . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/deployment.php';
+    $sh[] = "sed -i 's/snails.email/" . $domain['domain'] . "/g' " . str_replace('%wwwpath', API_WWW_PATH, str_replace('%hostname', $hostname, $jump['apache2-path'])) . '/.htaccess';
+    $sh[] = 'a2ensite ' . $hostname;
     $sh[] = 'service apache2 reload';
     $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'apache2.php.txt');
     $php = str_replace('%jumpid', $jump['id'], $php);
     file_put_contents($file = __DIR__ . DS . 'apache2-' . $hostname . '.php', $php);
     $sh[] = 'php -q "' . $file . '"';
-    file_put_contents(__DIR__ . DS . 'configure-apache2-' . $hostname . '.sh', implode("\n", $sh));
+    file_put_contents($cmd = __DIR__ . DS . 'configure-apache2-' . $hostname . '.sh', implode("\n", $sh));
+    $sh = array();
+    if (!file_exists($file = __DIR__ . DS . 'configure.sh'))
+        $sh[] = "rm " . $file . "";
+    else {
+        $sh = explode("\n", file_get_contents($file));
+    }
+    $sh[] = "sh '$cmd'";
+    file_put_contents($file, implode("\n", $sh));
+    
 }
     
