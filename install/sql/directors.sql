@@ -1,5 +1,3 @@
-DROP TABLE `directors`;
-
 CREATE TABLE `directors` (
  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
  `domain-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -42,7 +40,7 @@ CREATE TABLE `directors` (
  `hits-total` int(11) NOT NULL DEFAULT '0',
  `hits-last` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `hits-previous` int(11) UNSIGNED NOT NULL DEFAULT '0',
- `hits-oftern` float(21,10) UNSIGNED NOT NULL DEFAULT '0'
+ `hits-oftern` float(21,10) UNSIGNED NOT NULL DEFAULT '0',
  `hits-hour` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `hits-day` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `hits-week` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -55,9 +53,9 @@ CREATE TABLE `directors` (
  `updated` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `deleted` int(11) UNSIGNED NOT NULL DEFAULT '0',
  PRIMARY KEY (`id`),
- KEY `directors_domain_jump_idx` (`domain-id`,`jump-id`,`uid`),
- KEY `directors_referee_domain_jump_uid_idx` (`referee`,`domain-id`,`jump-id`,`uid`),
+ KEY `directors_domain_jump_idx` (`domain-id`,`jump-id`,`api-uid`),
+ KEY `directors_referee_domain_jump_uid_idx` (`referee`,`domain-id`,`jump-id`,`api-uid`),
  KEY `directors_chronologistics_idx` (`hits-last`,`hits-previous`,`expires`,`created`,`updated`,`deleted`),
- KEY `directors_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`),`quarter-start`,`quarter-ended`,`year-start`,`year-ended`
+ KEY `directors_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`,`quarter-start`,`quarter-ended`,`year-start`,`year-ended`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

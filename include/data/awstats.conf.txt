@@ -1,0 +1,10 @@
+Include "%awstatspath/awstats.$domain.conf"
+
+LogFile="/var/log/apache2/%logfile"
+
+SiteDomain="%hostname"
+
+HostAliases="localhost 127.0.0.1 %hostname REGEX[(.*?)\.(%hostname)$]"
+
+DirData="%wwwpath/%hostname/awstats-data/"
+

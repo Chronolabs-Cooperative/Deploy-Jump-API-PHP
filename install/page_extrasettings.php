@@ -35,7 +35,7 @@ $pageHasForm = true;
 $pageHasHelp = true;
 
 $ctrl = new PathStuffController($wizard->configs['apiPathDefault'], $wizard->configs['tmpPath']);
-$ctrl->execute();
+$ctrl->execute(__FILE__);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     return null;
 }

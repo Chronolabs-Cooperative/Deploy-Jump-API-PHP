@@ -54,7 +54,10 @@ if (true === $writeCheck) {
         'GROUP_USERS' => 2,
         'GROUP_ANONYMOUS' => 3);
     $rewrite = array_merge($rewrite, $vars);
-
+    
+    $result = writeConfigurationFile($rewrite, $vars['ROOT_PATH'] . '/include', 'constants.dist.php', 'constants.php');
+    $GLOBALS['error'] = !($result === true);
+    
     $result = writeConfigurationFile($rewrite, $vars['ROOT_PATH'] . '/include', 'dbconfig.dist.php', 'dbconfig.php');
     $GLOBALS['error'] = !($result === true);
     if ($result === true) {

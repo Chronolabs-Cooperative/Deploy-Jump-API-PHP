@@ -30,7 +30,12 @@ class PathStuffController
     public $apiPath = array(
         'root' => '',
         'lib'  => '',
-        'tmp' => '');
+        'tmp' => '',
+        'www' => '',
+        'sites_available' => '',
+        'ssl_certificates' => '',
+        'awstats' => ''
+    );
 
     public $apiPathDefault = array(
         'lib'  => 'tmp',
@@ -45,9 +50,11 @@ class PathStuffController
         'root' => 'ROOT_PATH',
         'tmp' => 'VAR_PATH',
         'lib'  => 'PATH',
-        'www' => '/var/www',
-        'sites_available' => '/etc/apache2/sites-available',
-        'ssl_certificates' => '/etc/ssl/certs');
+        'www' => 'WWW_PATH',
+        'sites_available' => 'SITES_AVAILABLE_PATH',
+        'ssl_certificates' => 'SSL_CERTIFICATES_PATH',
+        'awstats' => 'AWSTATS_PATH'
+    );
 
     public $apiUrl = '';
     public $apiCookieDomain = '';
@@ -55,6 +62,7 @@ class PathStuffController
     public $apiRootDomain = '';
     public $apiSitesAvailable = '';
     public $apiSslCertificates = '';
+    public $apiAwstats = '';
     
     public $validPath = array(
         'root' => 0,
@@ -104,7 +112,36 @@ class PathStuffController
             if (!is_dir($this->apiPath['tmp'] . '/')) {
                 $this->apiPath['tmp'] = $path . '/' . $this->apiPathDefault['tmp'];
             }
+            if (!is_dir($this->apiPath['www'] . '/')) {
+                $this->apiPath['www'] = $this->apiPathDefault['www'];
+            }
+            if (!is_dir($this->apiPath['ssl_certificates'] . '/')) {
+                $this->apiPath['ssl_certificates'] = $this->apiPathDefault['ssl_certificates'];
+            }
+            if (!is_dir($this->apiPath['sites_available'] . '/')) {
+                $this->apiPath['sites_available'] = $this->apiPathDefault['sites_available'];
+            }
+            if (!is_dir($this->apiPath['awstats'] . '/')) {
+                $this->apiPath['awstats'] = $this->apiPathDefault['awstats'];
+            }
         }
+        foreach($this->apiPath as $req => $value)
+            switch ($req)
+            {
+                case 'www':
+                    $this->apiWww = $value;
+                    break;
+                case 'ssl_certificates':
+                    $this->apiSslCertificates = $value;
+                    break;
+                case 'sites_available':
+                    $this->apiSitesAvailable = $value;
+                    break;
+                case 'awstats':
+                    $this->apiAwstats = $value;
+                    break;
+            }
+        
         if (isset($_SESSION['settings']['URL'])) {
             $this->apiUrl = $_SESSION['settings']['URL'];
         } else {
@@ -116,44 +153,43 @@ class PathStuffController
         } else {
             $this->apiCookieDomain = getBaseDomain($this->apiUrl);
         }
-        if (isset($_SESSION['settings']['SSL_CERTIFICATES'])) {
-            $this->apiSslCertificates = $_SESSION['settings']['SSL_CERTIFICATES'];
-        } else {
-            $this->apiSslCertificates = '/etc/ssl/certs';
-        }
         if (isset($_SESSION['settings']['ROOT_DOMAIN'])) {
             $this->apiRootDomain = $_SESSION['settings']['ROOT_DOMAIN'];
         } else {
             $this->apiRootDomain = getBaseDomain($this->apiUrl);
         }
-        if (isset($_SESSION['settings']['WWW'])) {
-            $this->apiWww = $_SESSION['settings']['WWW'];
-        } else {
-            $this->apiWww = '/var/www';
-        }
-        if (isset($_SESSION['settings']['SITES_AVAILABLE'])) {
-            $this->apiSitesAvailable = $_SESSION['settings']['SITES_AVAILABLE'];
-        } else {
-            $this->apiSitesAvailable = '/etc/apache2/sites-available';
-        }
-        
     }
 
-    public function execute()
+    public function execute($file = '')
     {
-        $this->readRequest();
-        $valid = $this->validate();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            foreach ($this->path_lookup as $req => $sess) {
-                $_SESSION['settings'][$sess] = $this->apiPath[$req];
-            }
-            $_SESSION['settings']['URL'] = $this->apiUrl;
-            $_SESSION['settings']['COOKIE_DOMAIN'] = $this->apiCookieDomain;
-            if ($valid) {
-                $GLOBALS['wizard']->redirectToPage('+1');
-            } else {
-                $GLOBALS['wizard']->redirectToPage('+0');
-            }
+        switch (basename($file)) {
+            default:
+                $this->readRequest();
+                $valid = $this->validate();
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    foreach ($this->path_lookup as $req => $sess) {
+                        $_SESSION['settings'][$sess] = $this->apiPath[$req];
+                    }
+                    $_SESSION['settings']['URL'] = $this->apiUrl;
+                    $_SESSION['settings']['COOKIE_DOMAIN'] = $this->apiCookieDomain;
+                    $_SESSION['settings']['ROOT_DOMAIN'] = $this->apiRootDomain;
+                    if ($valid) {
+                        $GLOBALS['wizard']->redirectToPage('+1');
+                    } else {
+                        $GLOBALS['wizard']->redirectToPage('+0');
+                    }
+                }
+                break;
+            case 'page_extrasettings.php':
+                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                    $_SESSION['settings']['ZONES_URL'] = $_REQUEST['ZONES'];
+                    $_SESSION['settings']['ZONES_USERNAME_URL'] = $_REQUEST['ZONES_USERNAME'];
+                    $_SESSION['settings']['ZONES_PASSWORD_URL'] = $_REQUEST['ZONES_PASSWORD'];
+                    $_SESSION['settings']['STRATA_URL'] = $_REQUEST['STRATA'];
+                    $_SESSION['settings']['WHOIS_URL'] = $_REQUEST['WHOIS'];
+                    $_SESSION['settings']['MASTERHOST_URL'] = $_REQUEST['MASTERHOST'];
+                    $GLOBALS['wizard']->redirectToPage('+1');
+                }
         }
     }
 
@@ -254,7 +290,34 @@ class PathStuffController
             }
             $ret *= $this->validPath[$path];
         }
-
+        if ($PATH === 'www' || empty($PATH)) {
+            $path = 'www';
+            if (is_dir($this->apiPath[$path]) && is_readable($this->apiPath[$path])) {
+                $this->validPath[$path] = 1;
+            }
+            $ret *= $this->validPath[$path];
+        }
+        if ($PATH === 'ssl_certificates' || empty($PATH)) {
+            $path = 'ssl_certificates';
+            if (is_dir($this->apiPath[$path]) && is_readable($this->apiPath[$path])) {
+                $this->validPath[$path] = 1;
+            }
+            $ret *= $this->validPath[$path];
+        }
+        if ($PATH === 'sites_available' || empty($PATH)) {
+            $path = 'sites_available';
+            if (is_dir($this->apiPath[$path]) && is_readable($this->apiPath[$path])) {
+                $this->validPath[$path] = 1;
+            }
+            $ret *= $this->validPath[$path];
+        }
+        if ($PATH === 'awstats' || empty($PATH)) {
+            $path = 'awstats';
+            if (is_dir($this->apiPath[$path]) && is_readable($this->apiPath[$path])) {
+                $this->validPath[$path] = 1;
+            }
+            $ret *= $this->validPath[$path];
+        }
         return $ret;
     }
 

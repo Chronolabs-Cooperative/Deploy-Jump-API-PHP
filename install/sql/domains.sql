@@ -1,8 +1,9 @@
 DROP TABLE `domains`;
 
+
 CREATE TABLE `domains` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `domain` varchar(255) NOT NULL  DEFAULT '',,
+  `domain` varchar(255) NOT NULL  DEFAULT '',
   `admin-email` varchar(255) NOT NULL DEFAULT '',
   `ssl` enum('Yes', 'No') NOT NULL DEFAULT 'No',
   `root-ssl-csr-file` varchar(255) NOT NULL DEFAULT '',
@@ -58,11 +59,12 @@ CREATE TABLE `domains` (
   `hits-year` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `created` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `updated` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `updated_dns` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `deleted` int(11) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `domain_index` (`domain`),
-  KEY `domains_search` (`domain`,`admin-email`,`uid`),
-  KEY `domains_chronologistics_idx` (`last`,`created`,`updated`,`deleted`),
-  KEY `domains_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`),`quarter-start`,`quarter-ended`,`year-start`,`year-ended`
+  KEY `domains_search` (`domain`,`admin-email`,`api-uid`),
+  KEY `domains_chronologistics_idx` (`last-directorid`,`last-jumpid`,`created`,`updated`,`deleted`),
+  KEY `domains_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`,`quarter-start`,`quarter-ended`,`year-start`,`year-ended`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

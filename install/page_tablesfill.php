@@ -38,17 +38,17 @@ include_once dirname(__DIR__) . '/mainfile.php';
 include_once __DIR__ . '/class/dbmanager.php';
 $dbm = new Db_manager();
 
-if (!$dbm->isConnectable()) {
+/*if (!$dbm->isConnectable()) {
     $wizard->redirectToPage('dbsettings');
     exit();
-}
-$res = $dbm->query('SELECT COUNT(*) FROM ' . 'users');
+}*/
+$res = $GLOBALS['APIDB']->queryF('SELECT COUNT(*) FROM `' . API_DB_PREFIX . '_users`');
 if (!$res) {
-    $wizard->redirectToPage('dbsettings');
+    $wizard->redirectToPage(-1);
     exit();
 }
 
-list($count) = $dbm->db->fetchRow($res);
+list($count) = $GLOBALS['APIDB']->fetchRow($res);
 $process = ($count == 0);
 $update  = false;
 

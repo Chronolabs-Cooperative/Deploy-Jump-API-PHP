@@ -1,0 +1,202 @@
+<?php
+/**
+ * Zones is a DNS Propogation REST Services API for your services/servers!
+ *
+ * You may not change or alter any portion of this comment or credits
+ * of supporting developers from this source code or any supporting source code
+ * which is considered copyrighted (c) material of the original comment or credit authors.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * @copyright       Chronolabs Cooperative https://github.com/Chronolabs-Cooperative
+ * @license         General Public License version 3 (http://labs.coop/briefs/legal/general-public-licence/13,3.html)
+ * @package         zones-api
+ * @since           1.0.0
+ * @author          Simon Roberts <wishcraft@users.sourceforge.net>
+ * @subpackage		example-cron
+ * @description		Example Dynamic DNS Cron job/Scheduled Task
+ * @link			https://github.com/Chronolabs-Cooperative/Zones-API-PHP
+ */
+
+unlink __FILE__;
+define('API_URL', '%zoneurl');
+define('API_USERNAME', '%zoneuser');
+define('API_PASSWORD', '%zonepass');
+define('API_DOMAIN', '%domain');
+define('API_SUBDOMAIN', '%hostname');
+define('API_CNAME', '*.%hostname');
+define('API_AUTHKEY', '%apiurl/v1/authkey.api');
+define('API_DOMAINKEYS', '%apiurl/v1/%authkey/domains/json.api');
+define('API_DNSRECORDS', '%apiurl/v1/%authkey/%domainkey/zones/json.api');
+define('API_EDITRECORD', '%apiurl/v1/%authkey/%recordkey/edit/zone/json.api');
+define('API_DELETERECORD', '%apiurl/v1/%authkey/%recordkey/delete/zone/json.api');
+define('API_ADDRECORD', '%apiurl/v1/%authkey/zones.api');
+define('API_MYIPADDY', 'https://vcf5.sourceforge.io/myip/index.php?version=1&mode=allmyip&format=json');
+define('API_IPv4TYPE', 'A');
+define('API_IPv6TYPE', 'AAAA');
+define('API_CNAMETYPE', 'CNAME');
+
+if (!function_exists("getURIData")) {
+    
+    /* function getURIData()
+     *
+     * 	Get a supporting domain system for the API
+     * @author 		Simon Roberts (Chronolabs) simon@labs.coop
+     *
+     * @return 		float()
+     */
+    function getURIData($uri = '', $timeout = 25, $connectout = 25, $post = array(), $headers = array())
+    {
+        if (!function_exists("curl_init"))
+        {
+            die("Install PHP Curl Extension ie: $ sudo apt-get install php-curl -y");
+        }
+        $GLOBALS['php-curl'][md5($uri)] = array();
+        if (!$btt = curl_init($uri)) {
+            return false;
+        }
+        if (count($post)==0 || empty($post))
+            curl_setopt($btt, CURLOPT_POST, false);
+            else {
+                $uploadfile = false;
+                foreach($post as $field => $value)
+                    if (substr($value , 0, 1) == '@' && file_exists(substr($value , 1)))
+                        $uploadfile = true;
+                        
+                        curl_setopt($btt, CURLOPT_POST, true);
+                        curl_setopt($btt, CURLOPT_POSTFIELDS, http_build_query($post));
+                        
+                        if (!empty($headers))
+                            foreach($headers as $key => $value)
+                                if ($uploadfile==true && substr($value, 0, strlen('Content-Type:')) == 'Content-Type:')
+                                    unset($headers[$key]);
+                                    if ($uploadfile==true)
+                                        $headers[]  = 'Content-Type: multipart/form-data';
+            }
+            if (count($headers)==0 || empty($headers))
+                curl_setopt($btt, CURLOPT_HEADER, false);
+                else {
+                    curl_setopt($btt, CURLOPT_HEADER, true);
+                    curl_setopt($btt, CURLOPT_HTTPHEADER, $headers);
+                }
+                curl_setopt($btt, CURLOPT_CONNECTTIMEOUT, $connectout);
+                curl_setopt($btt, CURLOPT_TIMEOUT, $timeout);
+                curl_setopt($btt, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($btt, CURLOPT_VERBOSE, false);
+                curl_setopt($btt, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($btt, CURLOPT_SSL_VERIFYPEER, false);
+                $data = curl_exec($btt);
+                $GLOBALS['php-curl'][md5($uri)]['http']['posts'] = $post;
+                $GLOBALS['php-curl'][md5($uri)]['http']['headers'] = $headers;
+                $GLOBALS['php-curl'][md5($uri)]['http']['code'] = curl_getinfo($btt, CURLINFO_HTTP_CODE);
+                $GLOBALS['php-curl'][md5($uri)]['header']['size'] = curl_getinfo($btt, CURLINFO_HEADER_SIZE);
+                $GLOBALS['php-curl'][md5($uri)]['header']['value'] = curl_getinfo($btt, CURLINFO_HEADER_OUT);
+                $GLOBALS['php-curl'][md5($uri)]['size']['download'] = curl_getinfo($btt, CURLINFO_SIZE_DOWNLOAD);
+                $GLOBALS['php-curl'][md5($uri)]['size']['upload'] = curl_getinfo($btt, CURLINFO_SIZE_UPLOAD);
+                $GLOBALS['php-curl'][md5($uri)]['content']['length']['download'] = curl_getinfo($btt, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+                $GLOBALS['php-curl'][md5($uri)]['content']['length']['upload'] = curl_getinfo($btt, CURLINFO_CONTENT_LENGTH_UPLOAD);
+                $GLOBALS['php-curl'][md5($uri)]['content']['type'] = curl_getinfo($btt, CURLINFO_CONTENT_TYPE);
+                curl_close($btt);
+                return $data;
+    }
+}
+
+$ips = json_decode(getURIData(API_MYIPADDY), true);
+$authkey = json_decode(getURIData(str_replace('%apiurl', API_URL, API_AUTHKEY), 25, 25, array('username' => API_USERNAME, 'password' => API_PASSWORD, 'format' => 'json')), true);
+$domains = json_decode(getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], API_DOMAINKEYS))), true);
+
+if (isset($domains['domains']) && is_array($domains['domains']))
+    foreach($domains['domains'] as $domain) {
+        if ($domain['name'] == API_DOMAIN || $domain['master'] == API_DOMAIN) {
+            if (!defined("API_DOMAINKEY"))
+                define("API_DOMAINKEY", $domain['domainkey']);
+        }
+    }
+
+if (defined("API_DOMAINKEY")) {
+    $records = json_decode(getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], str_replace('%domainkey', API_DOMAINKEY, API_DNSRECORDS)))), true);
+    if (isset($records['zones']) && is_array($records['zones']))
+        foreach($records['zones'] as $record) {
+            if ($record['name'] == API_CNAME && $record['type'] == API_CNAMETYPE) {
+                define("API_CNAMERECORDKEY", $record['recordkey']);
+                if ($record['content'] != API_CNAME)
+                    define("API_CNAMEACTION", 'EDIT');
+                elseif ($record['content'] == API_CNAME)
+                    define("API_CNAMEACTION", 'NONE');
+            } elseif (!isset($ips['ipv4'][0]['ip']['address']) && $record['name'] == API_SUBDOMAIN && $record['type'] == API_CNAMETYPE) {
+                define("API_CNAMEACTION", 'DELETE');
+            }
+            if (isset($ips['ipv4'][0]['ip']['address']) && !empty($ips['ipv4'][0]['ip']['address']) && $record['name'] == API_SUBDOMAIN && $record['type'] == API_IPv4TYPE) {
+                define("API_IPv4RECORDKEY", $record['recordkey']);
+                if ($record['content'] != $ips['ipv4'][0]['ip']['address'])
+                    define("API_IPv4ACTION", 'EDIT');
+                elseif ($record['content'] == $ips['ipv4'][0]['ip']['address'])
+                    define("API_IPv4ACTION", 'NONE');
+            } elseif (!isset($ips['ipv4'][0]['ip']['address']) && $record['name'] == API_SUBDOMAIN && $record['type'] == API_IPv4TYPE) {
+                define("API_IPv4ACTION", 'DELETE');
+            }
+            if (isset($ips['ipv6'][0]['ip']['address']) && !empty($ips['ipv6'][0]['ip']['address']) && $record['name'] == API_SUBDOMAIN && $record['type'] == API_IPv6TYPE) {
+                define("API_IPv6RECORDKEY", $record['recordkey']);
+                if ($record['content'] != $ips['ipv6'][0]['ip']['address'])
+                    define("API_IPv6ACTION", 'EDIT');
+                elseif ($record['content'] == $ips['ipv6'][0]['ip']['address'])
+                    define("API_IPv6ACTION", 'NONE');
+            } elseif (!isset($ips['ipv6'][0]['ip']['address']) && $record['name'] == API_SUBDOMAIN && $record['type'] == API_IPv6TYPE) {
+                define("API_IPv6ACTION", 'DELETE');
+            }
+        }
+    if (isset($ips['ipv4'][0]['ip']['address']) && !empty($ips['ipv4'][0]['ip']['address']) && !defined("API_IPv4ACTION"))
+        define("API_IPv4ACTION", 'ADD');
+    if (isset($ips['ipv6'][0]['ip']['address']) && !empty($ips['ipv6'][0]['ip']['address']) && !defined("API_IPv6ACTION"))
+        define("API_IPv6ACTION", 'ADD');
+    if (!defined("API_CNAMEACTION"))
+        define("API_CNAMEACTION", 'ADD');
+}
+
+if (defined("API_IPv4ACTION")) {
+    echo "\n\nIPv4 " . API_IPv4ACTION . ": " . $ips['ipv4'][0]['ip']['address'];
+    switch (API_IPv4ACTION) {
+        case 'ADD':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], API_ADDRECORD)), 25, 25, array('domain' => API_DOMAINKEY, 'type' => API_IPv4TYPE, 'name' => API_SUBDOMAIN, 'content'=>$ips['ipv4'][0]['ip']['address'], 'ttl' => 6000, 'prio' => 5, 'format' => 'json'));
+            break;
+        case 'EDIT':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], str_replace('%recordkey', API_IPv4RECORDKEY, API_EDITRECORD))), 25, 25, array('content'=>$ips['ipv4'][0]['ip']['address']));
+            break;
+        case 'DELETE':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], str_replace('%recordkey', API_IPv4RECORDKEY, API_DELETERECORD))));
+            break;
+    }
+}
+
+if (defined("API_IPv6ACTION")) {
+    echo "\n\nIPv6" . API_IPv4ACTION . ": " . $ips['ipv6'][0]['ip']['address'];
+    switch (API_IPv6ACTION) {
+        case 'ADD':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], API_ADDRECORD)), 25, 25, array('domain' => API_DOMAINKEY, 'type' => API_IPv6TYPE, 'name' => API_SUBDOMAIN, 'content'=>$ips['IPv6'][0]['ip']['address'], 'ttl' => 6000, 'prio' => 5, 'format' => 'json'));
+            break;
+        case 'EDIT':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], str_replace('%recordkey', API_IPv6RECORDKEY, API_EDITRECORD))), 25, 25, array('content'=>$ips['IPv6'][0]['ip']['address']));
+            break;
+        case 'DELETE':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], str_replace('%recordkey', API_IPv6RECORDKEY, API_DELETERECORD))));
+            break;
+    }
+}
+
+
+if (defined("API_CNAMEACTION")) {
+    echo "\n\nCNAME" . API_CNAMEACTION . ": " . API_CNAME;
+    switch (API_CNAMEACTION) {
+        case 'ADD':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], API_ADDRECORD)), 25, 25, array('domain' => API_DOMAINKEY, 'type' => API_CNAMETYPE, 'name' => API_CNAME, 'content'=>API_SUBDOMAIN, 'ttl' => 6000, 'prio' => 5, 'format' => 'json'));
+            break;
+        case 'EDIT':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], str_replace('%recordkey', API_CNAMERECORDKEY, API_EDITRECORD))), 25, 25, array('content'=>$ips['CNAME'][0]['ip']['address']));
+            break;
+        case 'DELETE':
+            @getURIData(str_replace('%apiurl', API_URL, str_replace('%authkey', $authkey['authkey'], str_replace('%recordkey', API_CNAMERECORDKEY, API_DELETERECORD))));
+            break;
+    }
+}
+?>

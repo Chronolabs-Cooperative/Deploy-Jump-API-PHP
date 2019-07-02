@@ -1,0 +1,29 @@
+<?php
+/**
+ * Zones is a DNS Propogation REST Services API for your services/servers!
+ *
+ * You may not change or alter any portion of this comment or credits
+ * of supporting developers from this source code or any supporting source code
+ * which is considered copyrighted (c) material of the original comment or credit authors.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * @copyright       Chronolabs Cooperative https://github.com/Chronolabs-Cooperative
+ * @license         General Public License version 3 (http://labs.coop/briefs/legal/general-public-licence/13,3.html)
+ * @package         zones-api
+ * @since           1.0.0
+ * @author          Simon Roberts <wishcraft@users.sourceforge.net>
+ * @subpackage		example-cron
+ * @description		Example Dynamic DNS Cron job/Scheduled Task
+ * @link			https://github.com/Chronolabs-Cooperative/Zones-API-PHP
+ */
+
+
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php';
+
+unlink __FILE__;
+
+define('API_JUMPID', '%jumpid');
+
+@$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('jumps') . "` SET `awstats-crons-configured` = (UNIX_TIMESTAMP() + (((60 * 5) * RAND()) + (RAND() * (60 * 29))) WHERE `id` = '" . API_JUMPID . "'");

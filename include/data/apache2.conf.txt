@@ -1,0 +1,16 @@
+
+<VirtualHost *:80>
+       ServerName %hostname
+       ServerAlias *.%hostname
+       ServerAdmin %adminemail
+       DocumentRoot %docroot
+       ErrorLog /var/logs/apache2/%errorlog
+       CustomLog /var/logs/apache2/%customlog combined common
+       <Directory %docroot>
+               Options Indexes FollowSymLinks MultiViews
+               AllowOverride All
+               Require all granted
+       </Directory>
+</VirtualHost>
+
+

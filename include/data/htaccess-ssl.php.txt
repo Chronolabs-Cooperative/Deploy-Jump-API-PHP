@@ -1,0 +1,41 @@
+<?php
+/**
+ * Zones is a DNS Propogation REST Services API for your services/servers!
+ *
+ * You may not change or alter any portion of this comment or credits
+ * of supporting developers from this source code or any supporting source code
+ * which is considered copyrighted (c) material of the original comment or credit authors.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * @copyright       Chronolabs Cooperative https://github.com/Chronolabs-Cooperative
+ * @license         General Public License version 3 (http://labs.coop/briefs/legal/general-public-licence/13,3.html)
+ * @package         zones-api
+ * @since           1.0.0
+ * @author          Simon Roberts <wishcraft@users.sourceforge.net>
+ * @subpackage		example-cron
+ * @description		Example Dynamic DNS Cron job/Scheduled Task
+ * @link			https://github.com/Chronolabs-Cooperative/Zones-API-PHP
+ */
+
+unlink __FILE__;
+define('API_HTACCESS_FILE', '%file');
+
+$htaccess = explode("\n", file_get_content(API_HTACCESS_FILE));
+$set = false;
+foreach($htaccess as $line)
+	if (strpos($line, 'Port 443 Redirection'))
+		$set = true;
+		
+$extra = array();
+if ($set==false) {
+	$extra[] = "## Port 443 Redirection";
+	$extra[] = "## " . date('Y-m-d H:i:s);
+	$extra[] = "RewriteEngine On";
+	$extra[] = "RewriteCond %{HTTP_PORT} !443$";
+	$extra[] = "RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]";
+	$extra[] = "";
+	$extra[] = "";
+	file_put_content(API_HTACCESS_FILE, implode("\n", $extra) . implode("\n", $htaccess))
+}

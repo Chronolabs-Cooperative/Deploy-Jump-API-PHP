@@ -105,6 +105,8 @@ define('API_WWW_LABEL', 'Root WWW Documents');
 define('API_WWW_HELP', 'Physical path to the Root of the WWW directory WITHOUT trailing slash, for forward compatibility. Locate the folder out of ' . API_ROOT_PATH_LABEL . ' to make it secure.');
 define('API_SITES_AVAILABLE_LABEL', 'Apache2 `sites-available` directory');
 define('API_SITES_AVAILABLE_HELP', 'Physical path to the Apahce2 `sites-available` (writable) directory WITHOUT trailing slash, for forward compatibility. Locate the folder out of ' . API_ROOT_PATH_LABEL . ' to make it secure.');
+define('API_AWSTATS_LABEL', 'Physical path to the AWSTATS Configuration');
+define('API_AWSTATS_HELP', 'Physical path to the AWSTATS Configuration');
 define('API_ZONES_LABEL', 'Internet URL to Zones API');
 define('API_ZONES_HELP', 'Physical URL to the REST API as installed from github.com');
 define('API_ZONES_USERNAME_LABEL', 'Zones REST API - Username');

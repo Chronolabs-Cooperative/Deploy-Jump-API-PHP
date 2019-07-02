@@ -48,7 +48,7 @@ function make_groups(&$dbm)
 function make_data(&$dbm, $settings, $language, $groups)
 {
     $sql = array();
-    $sql[] = "INSERT INTO `users` (`uid`, `name`, `uname`, `email`, `pass`, `url`, `api_avatar`, `api_regdate`, `actkey`, `hits`, `attachsig`, `timezone`, `last_login`, `last_online`, `api_mailok`) VALUES(1, '" . addslashes($settings['ADMIN_COMPANY']) . "', '" . addslashes($settings['ADMIN_UNAME']) . "', '" . addslashes($settings['ADMIN_EMAIL']) . "', '" . addslashes(md5($settings['ADMIN_PASS'])) . "', '" . addslashes(API_URL) . "', 'avatars/blank.gif', UNIX_TIMESTAMP(), '" . (chr(mt_rand(ord('a'), ord('z'))).chr(mt_rand(ord('a'), ord('z'))).chr(mt_rand(ord('A'), ord('Z'))).chr(mt_rand(ord('a'), ord('z'))).chr(mt_rand(ord('A'), ord('Z')))) . "', 0, 1, '" . date_default_timezone_get() . "', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 1)";
+    $sql[] = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('users') ."` (`uid`, `name`, `uname`, `email`, `pass`, `url`, `api_avatar`, `api_regdate`, `actkey`, `hits`, `attachsig`, `timezone`, `last_login`, `last_online`, `api_mailok`) VALUES(1, '" . addslashes($settings['ADMIN_COMPANY']) . "', '" . addslashes($settings['ADMIN_UNAME']) . "', '" . addslashes($settings['ADMIN_EMAIL']) . "', '" . addslashes(md5($settings['ADMIN_PASS'])) . "', '" . addslashes(API_URL) . "', 'avatars/blank.gif', UNIX_TIMESTAMP(), '" . (chr(mt_rand(ord('a'), ord('z'))).chr(mt_rand(ord('a'), ord('z'))).chr(mt_rand(ord('A'), ord('Z'))).chr(mt_rand(ord('a'), ord('z'))).chr(mt_rand(ord('A'), ord('Z')))) . "', 0, 1, '" . date_default_timezone_get() . "', UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 1)";
     $report = array();
     
     foreach($sql as $question)

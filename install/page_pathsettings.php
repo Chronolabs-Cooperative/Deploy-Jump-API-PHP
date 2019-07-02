@@ -177,8 +177,15 @@ ob_start();
             <div class="form-group">
                 <label class="xolabel" for="sites_available"><?php echo API_SITES_AVAILABLE_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_SITES_AVAILABLE_HELP; ?></div>
-                <input type="text" class="form-control" name="SITES_AVAILABLE" id="sites_available" value="<?php echo $ctrl->apiSitesAvailable; ?>" onchange="updPath('ssl_certificates', this.value)"/>
+                <input type="text" class="form-control" name="SITES_AVAILABLE" id="sites_available" value="<?php echo $ctrl->apiSitesAvailable; ?>" onchange="updPath('sites_available', this.value)"/>
                 <span id="sites_availablepathimg"><?php echo genPathCheckHtml('sites_available', $ctrl->validPath['sites_available']); ?></span>
+            </div>
+            
+            <div class="form-group">
+                <label class="xolabel" for="awstats"><?php echo API_AWSTATS_LABEL; ?></label>
+                <div class="xoform-help alert alert-info"><?php echo API_AWSTATS_HELP; ?></div>
+                <input type="text" class="form-control" name="AWSTATS" id="awstats" value="<?php echo $ctrl->apiAwstats; ?>" onchange="updPath('awstats', this.value)"/>
+                <span id="awstatspathimg"><?php echo genPathCheckHtml('awstats', $ctrl->validPath['awstats']); ?></span>
             </div>
         </div>
     </div>

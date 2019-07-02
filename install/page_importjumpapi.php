@@ -28,15 +28,13 @@
 require_once './include/common.inc.php';
 defined('API_INSTALL') || die('API Installation wizard die');
 
+include_once dirname(__DIR__) . '/mainfile.php';
 include_once './include/functions.php';
 include_once '../class/apilists.php';
 
 $pageHasForm = true;
 $pageHasHelp = true;
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && @$_GET['var'] && @$_GET['action'] === 'checkfile') {
-    exit();
-}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $wizard->redirectToPage('+1');
     return 302;
@@ -64,16 +62,16 @@ foreach($folders as $folder) {
         <div class="form-group">
                 <div id="article" class="article">
 		   <?php foreach($jumpapis as $folder => $path) { 
-		      $sql = "SELECT `id` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `domain` LIKE '" . $hostname = getBaseDomain("http://".$folder) ."'";
+		      $sql = "SELECT `id` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `domain` LIKE '" . ($hostname = getBaseDomain("http://".$folder)) ."'";
 		      list($domainid) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
 		      if ($domainid==0) {
-		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('domains') . "` (`api-uid`, `domains`, `admin-email`, `created`) VALUES ('1', '" . $hostname . "', 'webmaster@" . $hostname . ", UNIX_TIMESTAMP())";
+		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('domains') . "` (`api-uid`, `domain`, `admin-email`, `created`) VALUES ('1', '$hostname', 'webmaster@$hostname', UNIX_TIMESTAMP())";
 		          if ($GLOBALS['APIDB']->queryF($sql)) {
 		              $domainid = $GLOBALS['APIDB']->getInsertId();
 ?>					<div id="item" class="item">Domain: <?php echo $hostname; ?> (<?php echo $domainid; ?>) - Created!</div>
 <?php 
 		          } else {
-?>					<div id="item" class="item error">Domain: <?php echo $hostname; ?> - Error Creating!</div>
+?>					<div id="item" class="item error">Domain: <?php echo $hostname; ?> - Error Creating [<?php echo $sql; ?>]!</div>
 <?php 
 		          }
 		      }
@@ -84,19 +82,24 @@ foreach($folders as $folder) {
 		      $sql = "SELECT `id` FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `domain-id` = '$domainid' AND `sub-domain` LIKE '" . $subdomain ."' AND `hostname` LIKE '" . $host ."'";
 		      list($jumpid) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
 		      if ($jumpid==0) {
-		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('domains') . "` (`api-uid`, `domain-id`, `sub-domain`, `hostname`, `created`) VALUES ('1', '" . $domainid . "', '". $subdomain. ", '". $host. ", UNIX_TIMESTAMP())";
+		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('jumps') . "` (`api-uid`, `domain-id`, `sub-domain`, `hostname`, `created`) VALUES ('1', '$domainid', '$subdomain', '$host', UNIX_TIMESTAMP())";
 		          if ($GLOBALS['APIDB']->queryF($sql)) {
 		            $jumpid = $GLOBALS['APIDB']->getInsertId();
 ?>					<div id="item" class="item">Jump Sub-domain: <?php echo $folder; ?> (<?php echo $jumpid; ?> / <?php echo $domainid; ?> ) - Created!</div>
 <?php 
 		          } else {
-?>					<div id="item" class="item error">Jump Sub-domain: <?php echo $folder; ?> - Error Creating!</div>
+?>					<div id="item" class="item error">Jump Sub-domain: <?php echo $folder; ?> - Error Creating [<?php echo $sql; ?>]!</div>
 <?php 
 		          }
 		      }
-		      if (writeConfigurationFile(array('DEPLOYMENT_URL' => API_URL, 'DEPLOYMENT_USERNAME' => $_SESSION['settings']['ADMIN_UNAME'], 'DEPLOYMENT_USERNAME' => $_SESSION['settings']['ADMIN_PASS']), $path, 'deployment.dist.php', 'deployment.php')) {
+		      if (file_exists($path . '/deployment.php')) {
+		          chmod($path . '/deployment.php', 0777);
+		          unlink($path . '/deployment.php');
+		      }
+		      if (writeConfigurationFile(array('DEPLOYMENT_URL' => API_URL, 'DEPLOYMENT_USERNAME' => $_SESSION['settings']['ADMIN_UNAME'], 'DEPLOYMENT_PASSWORD' => $_SESSION['settings']['ADMIN_PASS']), $path, 'deployment.dist.php', 'deployment.php')) {
 ?>					<div id="item" class="item">Jump Deployment: <?php echo $path . DIRECTORY_SEPARATOR . 'deployment.php'; ?> (<?php echo $jumpid; ?> / <?php echo $domainid; ?> ) - Created!</div>
 <?php 
+                chmod($path . '/deployment.php', 0644);
 		      } else {
 ?>					<div id="item" class="item error">Jump Deployment: <?php echo $path . DIRECTORY_SEPARATOR . 'deployment.php'; ?> (<?php echo $jumpid; ?> / <?php echo $domainid; ?> ) - Error Creating!</div>
 <?php 

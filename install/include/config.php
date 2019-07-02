@@ -69,7 +69,12 @@ $configs['apiPathDefault'] = array(
 $configs['tmpPath'] = array(
     'caches'  => __DIR__ . '/caches',
     'includes' => __DIR__ . '/include',
-    'tmp'    => '/tmp');
+    'tmp'    => '/tmp',
+    'www'   => '/var/www',
+    'sites_available'   => '/etc/apache2/sites-available',
+    'ssl_certificates'   => '/etc/ssl/certs',
+    'awstats'   => '/etc/awstats'
+);
 
 // GeoIP Resource data files default paths
 $configs['api_url'] = array(

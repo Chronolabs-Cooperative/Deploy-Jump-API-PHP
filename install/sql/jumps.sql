@@ -25,6 +25,8 @@ CREATE TABLE `jumps` (
  `apache2-configured` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `apache2-ssl-configured` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `awstats-configured` int(11) UNSIGNED NOT NULL DEFAULT '0',
+ `awstats-crons-configured` int(11) UNSIGNED NOT NULL DEFAULT '0',
+ `callback-crons-configured` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `github-cloned` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `github-pulled` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `callback-hit` varchar(200) NOT NULL DEFAULT '',
@@ -64,8 +66,10 @@ CREATE TABLE `jumps` (
  `deleted` int(11) UNSIGNED NOT NULL DEFAULT '0',
  PRIMARY KEY (`id`),
  KEY `jumps_domain_id_idx` (`domain-id`),
- KEY `jumps_domain_uid_idx` (`sub-domain`,`uid`),
- KEY `jumps_chronologistics_idx` (`apache2-configured`,`apache2-ssl-configured`,`awstats-configured`,`created`,`updated`,`deleted`)
- KEY `jumps_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`),`quarter-start`,`quarter-ended`,`year-start`,`year-ended`
+ KEY `jumps_domain_uid_idx` (`sub-domain`,`api-uid`),
+ KEY `jumps_chronologistics_idx` (`apache2-configured`,`apache2-ssl-configured`,`awstats-configured`,`created`,`updated`,`deleted`),
+ KEY `jumps_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`,`quarter-start`,`quarter-ended`,`year-start`,`year-ended`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 

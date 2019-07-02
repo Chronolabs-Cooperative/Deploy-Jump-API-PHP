@@ -27,7 +27,7 @@ CREATE TABLE `statistician` (
   `previous-difference-stdev` float(21,10) UNSIGNED NOT NULL DEFAULT '0',
   `previous-pip` int(11) NOT NULL DEFAULT '0',
   `previous-pip-last` int(11) NOT NULL DEFAULT '0',
-  `previous-pip-motion` enum('up-above','down-above','up-miniscule','down-miniscule','up-average','up-stdev','up-equal','down-average','down-stdev','down-equal') DEFAULT 'equal',
+  `previous-pip-motion` enum('up-above','down-above','up-miniscule','down-miniscule','up-average','up-stdev','down-average','down-stdev','equal') DEFAULT 'equal',
   `scope-modal` enum('day','week','fortnight','month','quarter','year','biannual','other') DEFAULT 'other',
   `scope-seconds` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `scope-start` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -40,7 +40,7 @@ CREATE TABLE `statistician` (
   `scope-difference-stdev` float(21,10) UNSIGNED NOT NULL DEFAULT '0',
   `scope-pip` int(11) NOT NULL DEFAULT '0',
   `scope-pip-last` int(11) NOT NULL DEFAULT '0',
-  `scope-pip-motion` enum('up-above','down-above','up-miniscule','down-miniscule','up-average','up-stdev','up-equal','down-average','down-stdev','down-equal') DEFAULT 'equal',
+  `scope-pip-motion` enum('up-above','down-above','up-miniscule','down-miniscule','up-average','up-stdev','down-average','down-stdev','equal') DEFAULT 'equal',
   `start` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `end` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `seconds` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -50,7 +50,7 @@ CREATE TABLE `statistician` (
   `difference` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `pip` int(11) NOT NULL DEFAULT '0',
   `pip-last` int(11) NOT NULL DEFAULT '0',
-  `pip-motion` enum('up-above','down-above','up-miniscule','down-miniscule','up-average','up-stdev','up-equal','down-average','down-stdev','down-equal') DEFAULT 'equal',
+  `pip-motion` enum('up-above','down-above','up-miniscule','down-miniscule','up-average','up-stdev','down-average','down-stdev','equal') DEFAULT 'equal',
   `reports` longblob,
   `expires` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `created` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -58,7 +58,9 @@ CREATE TABLE `statistician` (
   `reported` int(11) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `statistician_index` (`modal`,`type`,`type-id`,`weight`),
-  KEY `statistician_chronologistics_index` (`year`,`quarter`,`month`,`fortnight`,`day`,`dayname`,`hour`,`previous-start`,`previous-end`,`scope-start`,`scope-end`,`start`,`end`,`expires`,`created`,`updated`,`reported`),
-  KEY `statistician_type_index` (`type`,`type-id`)
+  KEY `statistician_chronologistics_index` (`previous-start`,`previous-end`,`scope-start`,`scope-end`,`start`,`end`,`expires`,`created`,`updated`,`reported`),
+  KEY `statistician_type_index` (`year`,`quarter`,`month`,`fortnight`,`day`,`dayname`,`hour`,`type`,`type-id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 

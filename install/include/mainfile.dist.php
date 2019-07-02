@@ -53,6 +53,9 @@ if (!defined('API_MAINFILE_INCLUDED')) {
     // Physical path to the SSL `ceriticates` directory WITHOUT trailing slash
     define('API_SSL_CERTIFICATES_PATH', '');
     
+    // Physical path to the AWSTATS configurations directory WITHOUT trailing slash
+    define('API_AWSTATS_PATH', '');
+    
     // URL Association for SSL and Protocol Compatibility
     $http = 'http://';
     if (!empty($_SERVER['HTTPS'])) {

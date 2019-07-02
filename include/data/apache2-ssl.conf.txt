@@ -1,0 +1,36 @@
+
+<VirtualHost *:443>
+       ServerName %hostname
+       ServerAdmin %adminemail
+       DocumentRoot %docroot
+       ErrorLog %errorlog
+       CustomLog %customlog combined common
+       SSLEngine on
+       SSLCertificateFile %rootsslcertfile
+       SSLCertificateKeyFile %rootsslcertkey
+       SSLCertificateChainFile %rootsslchainfile
+       <Directory %docroot>
+               Options Indexes FollowSymLinks MultiViews
+               AllowOverride All
+               Require all granted
+       </Directory>
+</VirtualHost>
+
+<VirtualHost *:443>
+       ServerAlias *.%hostname
+       ServerAdmin %adminemail
+       DocumentRoot %docroot
+       ErrorLog %errorlog
+       CustomLog %customlog combined common
+       SSLEngine on
+       SSLCertificateFile %subsslcertfile
+       SSLCertificateKeyFile %subsslcertkey
+       SSLCertificateChainFile %subsslchainfile
+       <Directory %docroot>
+               Options Indexes FollowSymLinks MultiViews
+               AllowOverride All
+               Require all granted
+       </Directory>
+</VirtualHost>
+
+

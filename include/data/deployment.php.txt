@@ -27,11 +27,12 @@
  * @var constants
  */
 define("API_DEPLOYMENT_URL", '%api_url%');
+define("API_DEPLOYMENT_USERNAME", '%api_user%');
+define("API_DEPLOYMENT_PASSWORD", '%api_pass%');
 define("API_DEPLOYMENT_AUTH_URL", API_DEPLOYMENT_URL . '/v1/auth.api');
 define("API_DEPLOYMENT_CALLBACK_FUNCTION_URL", API_DEPLOYMENT_URL . '/v1/%s/%s/callback.api');
 define("API_DEPLOYMENT_CALLBACK_FUNCTION_MODAL_URL", API_DEPLOYMENT_URL . '/v1/%s/%s/%s/callback.api');
 define("API_DEPLOYMENT_CALLING", true);
 define("API_DEPLOYMENT_JUMPAPI_HOSTNAMES", API_DEPLOYMENT_URL . '/v1/hostnames.raw');
-define("API_DEPLOYMENT_USERNAME", '%api_user%');
-define("API_DEPLOYMENT_PASSWORD", '%api_pass%');
+
 
