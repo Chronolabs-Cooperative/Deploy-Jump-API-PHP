@@ -172,6 +172,7 @@ if (!function_exists("checkAuthKey")) {
         if ($uid <> 0 && !empty($uname))
         {
             $GLOBALS['account'] = $uname;
+            $GLOBALS['uid'] = $uid;
             $time = time();
             $GLOBALS['APIDB']->queryF("UPDATE `users` SET `last_online` = '$time', `hits` = `hits` + 1 WHERE `uid` = '$uid'");
             $return = array();

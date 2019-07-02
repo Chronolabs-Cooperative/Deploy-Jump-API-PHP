@@ -46,6 +46,11 @@ $pages = array(
         'title' => PATHS_SETTINGS_TITLE,
         'icon'  => 'fa fa-fw fa-folder-open'
     ),
+    'extrasettings'    => array(
+        'name'  => EXTRA_SETTINGS,
+        'title' => EXTRA_SETTINGS_TITLE,
+        'icon'  => 'fa fa-fw fa-folder-open'
+    ),
     'dbconnection'    => array(
         'name'  => DATABASE_CONNECTION,
         'title' => DATABASE_CONNECTION_TITLE,
@@ -76,9 +81,9 @@ $pages = array(
         'title' => TMP_INSERTION_TITLE,
         'icon'  => 'fa fa-fw fa-cloud-upload'
     ),
-    'configpowerdns'    => array(
-        'name'  => PATHS_POWERDNS,
-        'title' => PATHS_POWERDNS_TITLE,
+    'importjumpapi'    => array(
+        'name'  => IMPORT_JUMPAPI,
+        'title' => IMPORT_JUMPAPI_TITLE,
         'icon'  => 'fa fa-fw fa-folder-open'
     ),
     'end'             => array(

@@ -44,6 +44,15 @@ if (!defined('API_MAINFILE_INCLUDED')) {
     // Alias of API_PATH, for compatibility, temporary solution
     define('API_TRUST_PATH', API_PATH);
 
+    // Physical path to the Apache2 WWW datafiles (writable) directory WITHOUT trailing slash
+    define('API_WWW_PATH', '');
+    
+    // Physical path to the Apache2 `sites-available` datafiles (writable) directory WITHOUT trailing slash
+    define('API_SITES_AVAILABLE_PATH', '');
+    
+    // Physical path to the SSL `ceriticates` directory WITHOUT trailing slash
+    define('API_SSL_CERTIFICATES_PATH', '');
+    
     // URL Association for SSL and Protocol Compatibility
     $http = 'http://';
     if (!empty($_SERVER['HTTPS'])) {
@@ -61,6 +70,9 @@ if (!defined('API_MAINFILE_INCLUDED')) {
     // to share cookies across multiple subdomains (i.e. www.example.com and blog.example.com)
     define('API_COOKIE_DOMAIN', '');
 
+    // Root of website jump domain (i.e. jump.example.com is example.com)
+    define('API_ROOT_DOMAIN', '');
+    
     // Shall be handled later, don't forget!
     define('API_CHECK_PATH', 0);
     

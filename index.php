@@ -1,6 +1,6 @@
 <?php
 /**
- * Email Account Propogation REST Services API
+ * Deploy Short URL REST API Account Propogation REST Services API
  *
  * You may not change or alter any portion of this comment or credits
  * of supporting developers from this source code or any supporting source code
@@ -18,7 +18,7 @@
  * @version         1.1.11
  * @description		A REST API for the creation and management of emails/forwarders and domain name parks for email
  * @link            http://internetfounder.wordpress.com
- * @link            https://github.com/Chronolabs-Cooperative/Emails-API-PHP
+ * @link            https://github.com/Chronolabs-Cooperative/Deploy-Jump-API-PHP
  * @link            https://sourceforge.net/p/chronolabs-cooperative
  * @link            https://facebook.com/ChronolabsCoop
  * @link            https://twitter.com/ChronolabsCoop

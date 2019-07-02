@@ -30,6 +30,9 @@
 // APIs URLS
 define('API_STRATA_API_URL', '');
 define('API_WHOIS_API_URL', '');
+define('API_ZONES_API_URL', '');
+define('API_ZONES_USERNAME_URL', '');
+define('API_ZONES_PASSWORD_URL', '');
 
 // Master Peering Hostname
 define('API_MASTERHOST_API_URL', '');

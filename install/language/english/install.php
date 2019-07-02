@@ -50,6 +50,8 @@ define('SUCCESS', 'Success');
 define('WARNING', 'Warning');
 define('FAILED', 'Failed');
 // Titles (main and pages)
+define('REST_APIS', 'URL for REST API\'s');
+define('ZONES_API', 'URL, Username + Password for Zones DNS REST API');
 define('API_INSTALL_WIZARD', 'API Installation Wizard');
 define('LANGUAGE_SELECTION', 'Language selection');
 define('LANGUAGE_SELECTION_TITLE', 'Select your language');        // L128
@@ -59,8 +61,10 @@ define('CONFIGURATION_CHECK', 'Configuration check');
 define('CONFIGURATION_CHECK_TITLE', 'Checking your server configuration');
 define('PATHS_SETTINGS', 'Paths settings');
 define('PATHS_SETTINGS_TITLE', 'Paths settings');
-define('PATHS_EXTRA', 'Extra settings + URLs');
-define('PATHS_EXTRA_TITLE', 'Extra settings + URLs');
+define('EXTRA_SETTINGS', 'Extra settings + URLs');
+define('EXTRA_SETTINGS_TITLE', 'Extra settings + URLs');
+define('IMPORT_JUMPAPI', 'Import Jump API + Deployment');
+define('IMPORT_JUMPAPI_TITLE', 'Import Jump API + Deployment');
 define('DATABASE_CONNECTION', 'Database connection');
 define('DATABASE_CONNECTION_TITLE', 'Database connection');
 define('DATABASE_CONFIG', 'Database configuration');
@@ -78,6 +82,7 @@ define('WELCOME_TITLE', 'Welcome to your API site');        // L0
 // Settings (labels and help text)
 define('API_PATHS', 'API Physical paths');
 define('API_URLS', 'Web locations');
+define('SSL_APACHE', 'SSL, Apache2 Paths');
 define('API_ROOT_PATH_LABEL', 'API documents root physical path');
 define('API_ROOT_PATH_HELP', 'Physical path to the API documents (served) directory WITHOUT trailing slash');
 define('API_LIB_PATH_LABEL', 'API library directory');
@@ -92,7 +97,20 @@ define('API_WHOIS_LABEL', 'IP+Domain Whois REST Services API (see: <a href="http
 define('API_WHOIS_HELP', 'Physical URL to the REST API as installed from github.com');
 define('API_MASTERHOST_LABEL', 'The URL to the physical master peering hostname and URL basenamed');
 define('API_MASTERHOST_HELP', 'Physical URL to this REST API as installed from github.com as the master peering hostname + URL path');
-
+define('API_SSL_CERTIFICATES_LABEL', 'SSL Certificates Storage Paths');
+define('API_SSL_CERTIFICATES_HELP', 'Physical path to the SSL Certificates (served) directory WITHOUT trailing slash');
+define('API_ROOT_DOMAIN_LABEL', 'Root WWW Domain');
+define('API_ROOT_DOMAIN_HELP', 'Internet hostname path to the root of the WWW directory WITHOUT trailing slash, for forward compatibility. Locate the folder out of ' . API_ROOT_PATH_LABEL . ' to make it secure.');
+define('API_WWW_LABEL', 'Root WWW Documents');
+define('API_WWW_HELP', 'Physical path to the Root of the WWW directory WITHOUT trailing slash, for forward compatibility. Locate the folder out of ' . API_ROOT_PATH_LABEL . ' to make it secure.');
+define('API_SITES_AVAILABLE_LABEL', 'Apache2 `sites-available` directory');
+define('API_SITES_AVAILABLE_HELP', 'Physical path to the Apahce2 `sites-available` (writable) directory WITHOUT trailing slash, for forward compatibility. Locate the folder out of ' . API_ROOT_PATH_LABEL . ' to make it secure.');
+define('API_ZONES_LABEL', 'Internet URL to Zones API');
+define('API_ZONES_HELP', 'Physical URL to the REST API as installed from github.com');
+define('API_ZONES_USERNAME_LABEL', 'Zones REST API - Username');
+define('API_ZONES_USERNAME_HELP', 'The username for the zones api as from github.com/Zones-API-PHP');
+define('API_ZONES_PASSWORD_LABEL', 'Zones REST API - Password');
+define('API_ZONES_PASSWORD_HELP', 'The password for the zones api as from github.com/Zones-API-PHP');
 define('LEGEND_CONNECTION', 'Server connection');
 define('LEGEND_DATABASE', 'Database'); // L51
 define('DB_HOST_LABEL', 'Server hostname');    // L27
@@ -217,8 +235,4 @@ define('MODULES_AVAILABLE', 'Available Modules');
 define('INSTALL_THIS_MODULE', 'Add %s');
 
 // Emails REST API
-define('API_CONFIG_POWERDNS', 'Configuration Settings for PowerDNS');
-define('PATHS_POWERDNS', 'Configure PowerDNS');
-define('PATHS_POWERDNS_TITLE', 'Configuration for PowerDNS');
-define('API_PLATFORM_LABEL', 'Select your linux distribution platform to display the configuration (closest version to your current distro version)!');
-define('API_PLATFORM_HELP', 'Select your linux distribution platform to display the configuration (closest version to your current distro version)!');
+define('API_IMPORT_JUMPAPI', 'Import Jump API');

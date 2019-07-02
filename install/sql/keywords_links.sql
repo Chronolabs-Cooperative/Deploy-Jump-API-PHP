@@ -7,6 +7,8 @@ CREATE TABLE `keywords_links` (
   `type-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `domains` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `last-domains-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `uids` tinytext,
+  `api-uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `jumps` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `last-jumps-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `directors` int(11) UNSIGNED NOT NULL DEFAULT '0',

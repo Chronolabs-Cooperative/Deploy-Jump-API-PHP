@@ -73,6 +73,7 @@ $configs['tmpPath'] = array(
 
 // GeoIP Resource data files default paths
 $configs['api_url'] = array(
+    'zones' => 'http://zones.vps-a.snails.email',
     'strata' => 'http://strata.snails.email',
     'whois' => 'http://whois.snails.email',
     'masterhost' => $_SESSION['settings']['URL'],

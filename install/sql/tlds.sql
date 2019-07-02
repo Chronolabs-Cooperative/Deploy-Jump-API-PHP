@@ -42,7 +42,7 @@ CREATE TABLE `tlds` (
   `jumpapi-callback-url-reports` varchar(200) NOT NULL DEFAULT '',
   `jumpapi-callback-url-expires` varchar(200) NOT NULL DEFAULT '',
   `jumpapi-contact-email-address` varchar(200) NOT NULL DEFAULT '',
-  `uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `uids` tinytext,
   `api-uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `used-domains` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `used-jumps` int(11) UNSIGNED NOT NULL DEFAULT '0',

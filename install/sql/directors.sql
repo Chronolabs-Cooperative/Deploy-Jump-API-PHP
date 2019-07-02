@@ -19,7 +19,7 @@ CREATE TABLE `directors` (
  `focus-mimetype` varchar(100) NOT NULL DEFAULT '',
  `focus-email` varchar(200) NOT NULL DEFAULT '',
  `focus-generator` varchar(200) NOT NULL DEFAULT '',
- `uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
+ `uids` tinytext,
  `api-uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `callback-hit` varchar(200) NOT NULL DEFAULT '',
  `callback-stats` varchar(200) NOT NULL DEFAULT '',

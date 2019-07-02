@@ -44,15 +44,26 @@ class PathStuffController
     public $path_lookup = array(
         'root' => 'ROOT_PATH',
         'tmp' => 'VAR_PATH',
-        'lib'  => 'PATH');
+        'lib'  => 'PATH',
+        'www' => '/var/www',
+        'sites_available' => '/etc/apache2/sites-available',
+        'ssl_certificates' => '/etc/ssl/certs');
 
     public $apiUrl = '';
     public $apiCookieDomain = '';
-
+    public $apiWww = '';
+    public $apiRootDomain = '';
+    public $apiSitesAvailable = '';
+    public $apiSslCertificates = '';
+    
     public $validPath = array(
         'root' => 0,
         'tmp' => 0,
-        'lib'  => 0);
+        'lib'  => 0,
+        'www' => 0,
+        'sites_available' => 0,
+        'ssl_certificates' => 0
+    );
 
     public $validUrl = false;
 
@@ -103,8 +114,29 @@ class PathStuffController
         if (isset($_SESSION['settings']['COOKIE_DOMAIN'])) {
             $this->apiCookieDomain = $_SESSION['settings']['COOKIE_DOMAIN'];
         } else {
-            $this->apiCookieDomain = api_getBaseDomain($this->apiUrl);
+            $this->apiCookieDomain = getBaseDomain($this->apiUrl);
         }
+        if (isset($_SESSION['settings']['SSL_CERTIFICATES'])) {
+            $this->apiSslCertificates = $_SESSION['settings']['SSL_CERTIFICATES'];
+        } else {
+            $this->apiSslCertificates = '/etc/ssl/certs';
+        }
+        if (isset($_SESSION['settings']['ROOT_DOMAIN'])) {
+            $this->apiRootDomain = $_SESSION['settings']['ROOT_DOMAIN'];
+        } else {
+            $this->apiRootDomain = getBaseDomain($this->apiUrl);
+        }
+        if (isset($_SESSION['settings']['WWW'])) {
+            $this->apiWww = $_SESSION['settings']['WWW'];
+        } else {
+            $this->apiWww = '/var/www';
+        }
+        if (isset($_SESSION['settings']['SITES_AVAILABLE'])) {
+            $this->apiSitesAvailable = $_SESSION['settings']['SITES_AVAILABLE'];
+        } else {
+            $this->apiSitesAvailable = '/etc/apache2/sites-available';
+        }
+        
     }
 
     public function execute()
@@ -153,6 +185,11 @@ class PathStuffController
                 }
                 $request['COOKIE_DOMAIN'] = $tempCookieDomain;
                 $this->apiCookieDomain = $tempCookieDomain;;
+            }
+            if (isset($request['ROOT_DOMAIN'])) {
+                $tempRootDomain = getBaseDomain(trim($request['URL']));
+                $request['ROOT_DOMAIN'] = $tempRootDomain;
+                $this->apiCookieDomain = $tempRootDomain;;
             }
         }
     }

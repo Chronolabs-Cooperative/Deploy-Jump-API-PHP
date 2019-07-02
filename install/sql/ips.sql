@@ -7,7 +7,7 @@ CREATE TABLE `ips` (
   `ipv6` varchar(128) NOT NULL  DEFAULT '',
   `netbios` varchar(250) NOT NULL  DEFAULT '',
   `tld-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
-  `uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `uids` tinytext,
   `api-uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `used-domains` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `used-jumps` int(11) UNSIGNED NOT NULL DEFAULT '0',
