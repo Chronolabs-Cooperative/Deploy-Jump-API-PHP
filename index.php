@@ -79,7 +79,12 @@
 	    case 'authkey':
 	        $data = getAuthKey($inner['username'], $inner['password'], $inner['format']);
 	        break;
-	    case 'newsupermaster':
+	    case 'hostnames':
+	        $data = getHostnames();
+	        header('Content-type: text');
+	        die(implode("\n", $data));
+	        break;
+	    /*case 'newsupermaster':
 	    case 'supermaster':
 	        $data = addSupermaster($inner['authkey'], $inner['ip'], $inner['nameserver'], $inner['format']);
 	        break;
@@ -140,7 +145,7 @@
 	                break;
 	                
 	        }
-	        break;
+	        break;*/
 	}
 	
 	/**

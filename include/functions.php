@@ -157,6 +157,26 @@ if (!function_exists("getUserID")) {
         return $return;
     }
 }
+
+if (!function_exists("getHostnames")) {
+    /**
+     * checkEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function getHostnames($userkey = '')
+    {
+        $sql = "SELECT concat(`sub-domain`, '.', `hostname`) as `hostname` FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `apache2-configure` > 0";
+        $result = $GLOBALS['APIDB']->queryF($sql);
+        $hostnames = array();
+        while($hostname = $GLOBALS['APIDB']->fetchArray($result))
+            $hostnames[$hostname['hostname']] = $hostname['hostname'];
+        return $hostnames;
+    }
+}
+
 if (!function_exists("checkAuthKey")) {
     /**
      * checkEmail()

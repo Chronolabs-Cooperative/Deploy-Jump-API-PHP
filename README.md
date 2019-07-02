@@ -25,12 +25,13 @@ These are to go in you're crontab console
     */20 * * * * sh /var/www/deploy.jump.snails.email/crons/awstats-crons-1.sh
     */20 * * * * sh /var/www/deploy.jump.snails.email/crons/awstats-crons-2.sh
     */20 * * * * sh /var/www/deploy.jump.snails.email/crons/awstats-crons-3.sh
-    */20 * * * * sh /var/www/deploy.jump.snails.emails/crons/awstats-crons-4.sh
+    */20 * * * * sh /var/www/deploy.jump.snails.email/crons/awstats-crons-4.sh
     */3 * * * * sh /var/www/deploy.jump.snails.email/crons/configure.sh
     */2 * * * * sh /var/www/deploy.jump.snails.email/crons/sql.sh
+    */13 * * * * php -q /var/www/deploy.jump.snails.email/crons/configure.php
     */1 * * * * php -q /var/www/deploy.jump.snails.email/crons/apache2-configure.php
     */1 * * * * php -q /var/www/deploy.jump.snails.email/crons/apache2-ssl-configure.php
     */1 * * * * php -q /var/www/deploy.jump.snails.email/crons/awstats-configure.php
     */17 * * * * php -q /var/www/deploy.jump.snails.email/crons/awstats-crons.php
     */8 * * * * php -q /var/www/deploy.jump.snails.email/crons/jumpapi-crons.php
-    */11 * * * * php -q /var/www/deploy.jump.snails.email/crons/configure.php
+    */13 */2 * * * php -q /var/www/deploy.jump.snails.email/crons/github-configure.php
