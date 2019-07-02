@@ -168,11 +168,12 @@ if (!function_exists("getHostnames")) {
      */
     function getHostnames($userkey = '')
     {
-        $sql = "SELECT concat(`sub-domain`, '.', `hostname`) as `hostname` FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `apache2-configure` > 0";
+        $sql = "SELECT concat(`sub-domain`, '.', `hostname`) as `hostname` FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `apache2-configured` <> 0";
         $result = $GLOBALS['APIDB']->queryF($sql);
         $hostnames = array();
-        while($hostname = $GLOBALS['APIDB']->fetchArray($result))
-            $hostnames[$hostname['hostname']] = $hostname['hostname'];
+        while($row = $GLOBALS['APIDB']->fetchArray($result))
+            $hostnames[$row['hostname']] = $row['hostname'];
+        sort($hostnames, SORT_ASC);
         return $hostnames;
     }
 }
@@ -327,6 +328,83 @@ if (!function_exists("addZones")) {
     }
 }
 
+
+
+if (!function_exists("createUser")) {
+    /**
+     * checkEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function createUser($key, $vars)
+    {
+        if (!checkEmail($vars['email']))
+            return array('code' => 501, 'errors' => array('109' => 'e-Mail format isn\'t valid!!!'));
+                
+        if (!empty($vars['password']) && !empty($vars['vpassword']) && $vars['password'] != $vars['vpassword'])
+            return array('code' => 501, 'errors' => array('108' => 'Password & verify password do not match!!!'));
+                    
+        $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE (`uname` LIKE '" .$GLOBALS['APIDB']->escape($vars['username']). "')";
+        list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+        if ($count==0)
+        {
+            APICache::write("create-user-$key", $vars, 3600 * 96 * mt_rand(4, 13));
+            require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'apimailer.php';
+                            
+            $mail = new APIMailer(API_LICENSE_EMAIL, API_LICENSE_COMPANY);
+            $body = file_get_contents(__DIR__  . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'verify_user_emailtemplate.html' );
+            $body = str_replace('%apilogo', API_URL . '/assets/images/logo_350x350.png', $body);
+            $body = str_replace('%apiurl', API_URL, $body);
+            $body = str_replace('%zoneurl', API_ZONES_API_URL, $body);
+            $body = str_replace('%verifyurl', API_URL . '/v1/' . $key . '/verify.api', $body);
+            $body = str_replace('%companyname', API_LICENSE_COMPANY, $body);
+            $body = str_replace('%uname', $var['username'], $body);
+            $body = str_replace('%pass', $var['password'], $body);
+            $body = str_replace('%email', $var['email'], $body);
+            if ($mail->sendMail(array((!empty($var['name'])?$var['name']:$var['email']) => $var['email'], array(), array(), "Confirm: Zone + Short URL Deployment API Creditials", $body, array(), "", true))) {
+                $return = array('code' => 201, 'verifykey' => $key, 'errors' => array());
+            } else {
+                $return = array('code' => 501, 'userkey' => md5(NULL. 'user'), 'errors' => array("smtp" => "Email Address Not Contactable: " . $vars['email']));
+            }
+        }
+        return $return;
+    }
+}
+
+
+if (!function_exists("verifyUser")) {
+    /**
+     * checkEmail()
+     *
+     * @param mixed $email
+     * @param mixed $antispam
+     * @return bool|mixed
+     */
+    function verifyUser($key, $vars)
+    {
+        if ($vars = APICache::read("create-user-$key")) {
+            $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('users') . "` (`uname`, `email`, `pass`, `name`, `url`) VALUES ('" .$GLOBALS['APIDB']->escape($vars['username']). "', '" .$GLOBALS['APIDB']->escape($vars['email']). "', md5('" .$GLOBALS['APIDB']->escape($vars['password']). "', '" .$GLOBALS['APIDB']->escape($vars['name']). "', '" .$GLOBALS['APIDB']->escape($vars['url']). "'))";
+            if ($GLOBALS['APIDB']->queryF($sql))
+            {
+                $sql = "SELECT md5(concat(`uid`, '" . API_URL . "', 'user')) FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `uid` = '".$GLOBALS['APIDB']->getInsertId()."'";
+                list($userkey) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+                $_SESSION['userkey'] = $userkey;
+                setcookie('userkey', $_SESSION['userkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
+                $return = array('code' => 201, 'userkey' => array(parse_url(API_URL, PHP_URL_HOST) => $_SESSION['userkey']), 'errors' => array());
+                
+                $authkey = json_decode(getURIData(API_ZONES_API_URL, 25, 25, array('username' => API_ZONES_USERNAME_URL, 'password' => API_ZONES_PASSWORD_URL, 'format' => 'json')), true);
+                $json = json_decode(getURIData(sprintf(API_ZONES_API_URL . "/v1/%s/users/json.api", $authkey['authkey']), 180, 180, array_merge(array('uname' => $vars['username'], 'email' => $vars['email'], 'pass' => $vars['password'], 'vpass' => $vars['vpassword'], 'format' => 'json'), $vars)), true);
+                if (!empty($json['userkey']))
+                    $return['userkey'][parse_url(API_ZONES_API_URL, PHP_URL_HOST)] = $json['userkey'];
+                APICache::delete("create-user-$key");
+            }
+        } else 
+            return array('code' => 501, 'userkey' => array(), 'errors' => array(404 => "User Verififcation Key Not Found: $key"));
+        return $return;
+    }
+}
 
 if (!function_exists("addUser")) {
     /**
@@ -1045,6 +1123,92 @@ function getHTMLForm($mode = '', $authkey = '')
     $form = array();
     switch ($mode)
     {
+        case "createuser":
+            $form[] = "<form name='create-user' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/createuser.api">';
+            $form[] = "\t<table class='auth-key' id='auth-key' style='vertical-align: top !important; min-width: 98%;'>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='username'>Username:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='username' id='username' size='41' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='email'>Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='email' id='email' size='41' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='name'>Organisation/Name:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='name' id='name' size='41' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='url'>URL:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='url' id='url' size='41' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='password'>Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='password' name='password' id='password' size='41' /><br/>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='vpassword'>Verify Password:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='vpassword' name='vpassword' id='vpassword' size='41' /><br/>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<label for='format'>Output Format:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<select name='format' id='format'/>";
+            $form[] = "\t\t\t\t\t<option value='raw'>RAW PHP Output</option>";
+            $form[] = "\t\t\t\t\t<option value='json' selected='selected'>JSON Output</option>";
+            $form[] = "\t\t\t\t\t<option value='serial'>Serialisation Output</option>";
+            $form[] = "\t\t\t\t\t<option value='xml'>XML Output</option>";
+            $form[] = "\t\t\t\t</select>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-left:64px;'>";
+            $form[] = "\t\t\t\t<input type='hidden' value='createuser' name='mode'>";
+            $form[] = "\t\t\t\t<input type='submit' value='Create User' name='submit' style='padding:11px; font-size:122%;'>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td colspan='3' style='padding-top: 8px; padding-bottom: 14px; padding-right:35px; text-align: right;'>";
+            $form[] = "\t\t\t\t<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold;'>* </font><font  style='color: rgb(10,10,10); font-size: 99%; font-weight: bold'><em style='font-size: 76%'>~ Required Field for Form Submission</em></font>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t</table>";
+            $form[] = "</form>";
+            break;
         case "authkey":
             $form[] = "<form name='auth-key' method=\"POST\" enctype=\"multipart/form-data\" action=\"" . API_URL . '/v1/authkey.api">';
             $form[] = "\t<table class='auth-key' id='auth-key' style='vertical-align: top !important; min-width: 98%;'>";

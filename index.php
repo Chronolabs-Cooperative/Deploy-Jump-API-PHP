@@ -76,6 +76,12 @@
 	    default:
 	        $help = true;
 	        break;
+	    case 'createuser':
+	        $data = createUser(md5($inner['username'] . $inner['password'] . $inner['email']), $inner);
+	        break;
+	    case 'verify':
+	        $data = verifyUser($inner['key']);
+	        break;
 	    case 'authkey':
 	        $data = getAuthKey($inner['username'], $inner['password'], $inner['format']);
 	        break;

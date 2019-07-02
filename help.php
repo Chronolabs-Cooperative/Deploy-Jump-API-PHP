@@ -128,6 +128,15 @@ else
     <p>You can propogate DNS and zone delegation with this api and call and respond and generate zone on the fly.</p>
 	<h2>Code API Documentation</h2>
     <p>You can find the phpDocumentor code API documentation at the following path :: <a href="<?php echo API_URL . '/'; ?>docs/" target="_blank"><?php echo API_URL . '/'; ?>docs/</a>. These should outline the source code core functions and classes for the API to function!</p>
+    <h2>CREATEUSER Document Output</h2>
+    <p>This is done with the <em>createuser.api</em> extension at the end of the url, you replace the example address with either a domain!</p>
+    <blockquote>
+        <?php echo getHTMLForm('createuser'); ?>
+    </blockquote>
+    <h3>This the HTML Code surrounding the api call</h3>
+    <pre style="max-height: 300px; overflow: scroll;">
+    <?php echo htmlspecialchars(getHTMLForm('createuser')); ?>
+    </pre>
     <h2>AUTHKEY Document Output</h2>
     <p>This is done with the <em>authkey.api</em> extension at the end of the url, you replace the example address with either a domain!</p>
     <blockquote>

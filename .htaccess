@@ -7,9 +7,10 @@ php_value display_errors 0
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^v([0-9]{1,2})/hostname.txt ./index.php?version=$1&mode=hostnames [L,NC,QSA]
 RewriteRule ^v([0-9]{1,2})/hostnames.txt ./index.php?version=$1&mode=hostnames [L,NC,QSA]
 RewriteRule ^v([0-9]{1,2})/authkey.api ./index.php?version=$1&mode=authkey [L,NC,QSA]
+RewriteRule ^v([0-9]{1,2})/createuser.api ./index.php?version=$1&mode=createuser [L,NC,QSA]
+RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/verify.api ./index.php?version=$1&key=$2&mode=verify [L,NC,QSA]
 RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/callback.api ./callback.php?version=$1&authkey=$2 [L,NC,QSA]
 RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-zA-Z]{32})/callback.api ./callback.php?version=$1&authkey=$2&key=$3 [L,NC,QSA]
 RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-zA-Z]{32})/([0-9a-zA-Z]{32})/callback.api ./callback.php?version=$1&authkey=$2&mode=$3&key=$4 [L,NC,QSA]
