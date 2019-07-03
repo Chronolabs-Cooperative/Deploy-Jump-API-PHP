@@ -63,9 +63,6 @@ if (file_exists(API_SSL_FILE_CSR))  {
 	    foreach(explode("\n", file_get_contents(API_ALIASES)) as $value)
 	        $aliases[] = $value;
 	    file_put_contents(API_ALIASES, implode("\n", $aliases));
-	    if (file_exists(API_ALIASES . '.db'))
-	        unlink(API_ALIASES . '.db');
-	    exec("postmap " . API_ALIASES, $output, $result);
 	}
 	
     require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'apimailer.php';
