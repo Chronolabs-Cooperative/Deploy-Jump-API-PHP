@@ -34,6 +34,7 @@ $sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `root
 $result = $GLOBALS['APIDB']->queryF($sql);
 while($domain = $GLOBALS['APIDB']->fetchArray($result)) {
     $sh = array();
+    $sh[] = "unlink " . __DIR__ . DS . 'configure-ssl-star.' . $domain['domain'] . '.sh';
     if (!is_dir(dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys'))
         $sh[] = 'mkdir ' . dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys';
     if (!is_dir(dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr'))
@@ -65,6 +66,7 @@ $result = $GLOBALS['APIDB']->queryF($sql);
 while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
     $hostname = $jump['sub-domain'] . '.' . $jump['hostname'];
     $sh = array();
+    $sh[] = "unlink " . __DIR__ . DS . 'configure-ssl-star.' . $hostname . '.sh';
     if (!is_dir(dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys'))
         $sh[] = 'mkdir ' . dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys';
     if (!is_dir(dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr'))
