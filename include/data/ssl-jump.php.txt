@@ -24,7 +24,7 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php';
 unlink (__FILE__);
 
 define('API_ALIASES', '/etc/aliases');
-define('API_DOMAINID', '%domainid');
+define('API_JUMPID', '%jumpid');
 define('API_SSL_BASIS', '%basis');
 define('API_SSL_FILE_CSR', '%sslcsr');
 define('API_SSL_FILE_KEY', '%sslkey');
@@ -32,18 +32,18 @@ define('API_SSL_FIELD_CSR', '%fieldcsr');
 define('API_SSL_FIELD_KEY', '%fieldkey');
 
 if (file_exists(API_SSL_FILE_CSR)) 
-    @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `" . API_SSL_FIELD_CSR ."` = " .API_SSL_FILE_CSR . ", `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_DOMAINID . "'");
+    @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('jumps') . "` SET `" . API_SSL_FIELD_CSR ."` = " .API_SSL_FILE_CSR . ", `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_JUMPID . "'");
 
 if (file_exists(API_SSL_FILE_KEY))
-    @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `" . API_SSL_FIELD_KEY ."` = " .API_SSL_FILE_KEY . ", `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_DOMAINID . "'");
+    @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('jumps') . "` SET `" . API_SSL_FIELD_KEY ."` = " .API_SSL_FILE_KEY . ", `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_JUMPID . "'");
 
 if (file_exists(API_SSL_FILE_CSR))  {
 
-    $domain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '" . API_DOMAINID . "'"));
-    $user = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `uid` = '" . $domain['api-uid'] . "'"));
+    $jump = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `id` = '" . API_JUMPID . "'"));
+    $user = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `uid` = '" . $jump['api-uid'] . "'"));
     
     if (substr(API_SSL_BASIS, 0, 4) != '*.*.') {
-    	$emails = array();
+        $emails = array();
 	    foreach(explode("\n", file_get_contents(API_ALIASES)) as $value)
 	   	{
 	   		$parts = explode("\t", $value);
@@ -51,14 +51,14 @@ if (file_exists(API_SSL_FILE_CSR))  {
 	    		$emails[] = $parts[1]
 	   	}
 	    $aliases = array();
-	    $aliases[] = "# SSL aliases for " . $domain['domain'];
-	    $aliases[] = "webmaster:\tssl-" . str_replace('.', '-', $domain['domain']);
-	    $aliases[] = "hostmaster:\tssl-" . str_replace('.', '-', $domain['domain']);
-	    $aliases[] = "admin:\tssl-" . str_replace('.', '-', $domain['domain']);
-	    if ($domain['admin-email'] != "webmaster@".$domain['domain'] && !in_array($domain['admin-email'], $emails))
-	        $aliases[] = "ssl-" . str_replace('.', '-', $domain['domain']). ":\t" .$domain['admin-email'];
+	    $aliases[] = "# SSL aliases for " . $jump['sub-domain'] . '.' . $jump['hostname'];
+	    $aliases[] = "webmaster:\tssl-" . str_replace('.', '-', $jump['sub-domain'] . '.' . $jump['hostname']);
+	    $aliases[] = "hostmaster:\tssl-" . str_replace('.', '-', $jump['sub-domain'] . '.' . $jump['hostname']);
+	    $aliases[] = "admin:\tssl-" . str_replace('.', '-', $jump['sub-domain'] . '.' . $jump['hostname']);
+	    if ($jump['admin-email'] != "webmaster@".$jump['hostname'] && checkEmail($jump['admin-email']) && !in_array($jump['admin-email'], $emails))
+	        $aliases[] = "ssl-" . str_replace('.', '-', $jump['sub-domain'] . '.' . $jump['hostname']). ":\t" .$jump['admin-email'];
 	    if (isset($user['email']) && !in_array($user['email'], $emails))
-	        $aliases[] = "ssl-" . str_replace('.', '-', $domain['domain']). ":\t" . $user['email'];
+	        $aliases[] = "ssl-" . str_replace('.', '-', $jump['sub-domain'] . '.' . $jump['hostname']). ":\t" . $user['email'];
 	    $aliases[] = "";
 	    foreach(explode("\n", file_get_contents(API_ALIASES)) as $value)
 	        $aliases[] = $value;
@@ -73,10 +73,10 @@ if (file_exists(API_SSL_FILE_CSR))  {
     $body = file_get_contents(__DIR__  . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'ssl_csr_emailtemplate.html' );
     $body = str_replace('%apilogo', API_URL . '/assets/images/logo_350x350.png', $body);
     $body = str_replace('%apiurl', API_URL, $body);
-    $body = str_replace('%apisslurl', API_URL . '/v1/' . str_replace('*', 'star', API_SSL_BASIS) . '/' . md5($domain['api-uid'] . $domain['id'] . $domain['domain'] . $domain['ssl']) . '/ssl.html' , $body);
+    $body = str_replace('%apisslurl', API_URL . '/v1/' . str_replace('*', 'star', API_SSL_BASIS) . '/' . md5($jump['api-uid'] . $jump['id'] . $jump['sub-domain'] . '.' . $jump['hostname'] . $domain['ssl']) . '/ssl.html' , $body);
     $body = str_replace('%csr', file_get_contents(API_SSL_FILE_CSR), $body);
     $body = str_replace('%companyname', API_LICENSE_COMPANY, $body);
     $body = str_replace('%basis', API_SSL_BASIS, $body);
-    $mail->sendMail(array((!empty($user['name'])?$user['name']:$user['email']) => $user['email']), array(), array(), "SSL CSR Generated: " . API_SSL_BASIS, $body, array(basename(API_SSL_FILE_CSR) => API_SSL_FILE_CSR), "", true);
+    $mail->sendMail(array((!empty($user['name'])?$user['name']:$user['email']) => $user['email'], $jump['sub-domain'] . '.' . $jump['hostname'] => $jump['admin-email']), array(), array(), "SSL CSR Generated: " . API_SSL_BASIS, $body, array(basename(API_SSL_FILE_CSR) => API_SSL_FILE_CSR), "", true);
         
 }

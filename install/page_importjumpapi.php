@@ -85,6 +85,7 @@ foreach($folders as $folder) {
 		      if ($jumpid==0) {
 		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('jumps') . "` (`api-uid`, `domain-id`, `sub-domain`, `hostname`, `created`) VALUES ('1', '$domainid', '$subdomain', '$host', UNIX_TIMESTAMP())";
 		          if ($GLOBALS['APIDB']->queryF($sql)) {
+		              @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . " SET `jumps` = `jumps` + 1 WHERE `id` = $domainid");
 		            $jumpid = $GLOBALS['APIDB']->getInsertId();
 ?>					<div id="item" class="item">Jump Sub-domain: <?php echo $folder; ?> (<?php echo $jumpid; ?> / <?php echo $domainid; ?> ) - Created!</div>
 <?php 

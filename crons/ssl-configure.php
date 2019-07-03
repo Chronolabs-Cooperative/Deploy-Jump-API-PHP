@@ -30,7 +30,7 @@ if ($staters = APICache::read('apache2-configure'))
     $seconds = 1800;
 }
 
-$sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `root-ssl-csr-file` LIKE '' AND `sub-ssl-csr-file` LIKE ''";
+$sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `root-ssl-csr-file` LIKE ''";
 $result = $GLOBALS['APIDB']->queryF($sql);
 while($domain = $GLOBALS['APIDB']->fetchArray($result)) {
     $sh = array();
@@ -48,17 +48,7 @@ while($domain = $GLOBALS['APIDB']->fetchArray($result)) {
     $php = str_replace('%fieldcsr', 'root-ssl-csr-file', $php);
     file_put_contents($file = __DIR__ . DS . 'ssl-domain-star.' . $domain['domain'] . '.php', $php);
     $sh[] = 'php -q "' . $file . '"';
-    $sh[] = 'openssl req -new -key ' . ($subkey = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys' . DS . 'star.star.'.$domain['domain'].'.key') . ' -out ' . ($subcsr = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr' . DS . 'star.'.'star.'.$domain['domain'].'.csr') . ' -subj "/C=AU/ST=New South Wales/L=Sydney, Australia/O=' . API_LICENSE_COMPANY . '/OU=IT Department/CN=*.*.'.$domain['domain'].'"';
-    $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'ssl-domain.php.txt');
-    $php = str_replace('%domainid', $domain['id'], $php);
-    $php = str_replace('%basis', '*.*.'.$domain['domain'], $php);
-    $php = str_replace('%sslkey', $subkey, $php);
-    $php = str_replace('%sslcsr', $subcsr, $php);
-    $php = str_replace('%fieldkey', 'sub-ssl-certificate-key-file', $php);
-    $php = str_replace('%fieldcsr', 'sub-ssl-csr-file', $php);
-    file_put_contents($file = __DIR__ . DS . 'ssl-domain-star.star.' . $domain['domain'] . '.php', $php);
-    $sh[] = 'php -q "' . $file . '"';
-    file_put_contents($cmd = __DIR__ . DS . 'configure-ssl-' . $domain['domain'] . '.sh', implode("\n", $sh));
+    file_put_contents($cmd = __DIR__ . DS . 'configure-ssl-star.' . $domain['domain'] . '.sh', implode("\n", $sh));
     $sh = array();
     if (!file_exists($file = __DIR__ . DS . 'configure.sh'))
         $sh[] = "rm " . $file . "";
@@ -69,3 +59,33 @@ while($domain = $GLOBALS['APIDB']->fetchArray($result)) {
     file_put_contents($file, implode("\n", $sh));
 }
     
+
+$sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `root-ssl-csr-file` LIKE ''";
+$result = $GLOBALS['APIDB']->queryF($sql);
+while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
+    $hostname = $jump['sub-domain'] . '.' . $jump['hostname'];
+    $sh = array();
+    if (!is_dir(dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys'))
+        $sh[] = 'mkdir ' . dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys';
+    if (!is_dir(dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr'))
+        $sh[] = 'mkdir ' . dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr';
+    $sh[] = 'openssl req -new -key ' . ($rootkey = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys' . DS . 'star.'.$hostname.'.key') . ' -out ' . ($rootcsr = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr' . DS . 'star.'.$hostname.'.csr') . ' -subj "/C=AU/ST=New South Wales/L=Sydney, Australia/O=' . API_LICENSE_COMPANY . '/OU=IT Department/CN=*.'.$domain['domain'].'"';
+    $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'ssl-jump.php.txt');
+    $php = str_replace('%jumpid', $jump['id'], $php);
+    $php = str_replace('%basis', '*.'.$hostname, $php);
+    $php = str_replace('%sslkey', $rootkey, $php);
+    $php = str_replace('%sslcsr', $rootcsr, $php);
+    $php = str_replace('%fieldkey', 'root-ssl-certificate-key-file', $php);
+    $php = str_replace('%fieldcsr', 'root-ssl-csr-file', $php);
+    file_put_contents($file = __DIR__ . DS . 'ssl-jump-star.' . $hostname . '.php', $php);
+    $sh[] = 'php -q "' . $file . '"';
+    file_put_contents($cmd = __DIR__ . DS . 'configure-ssl-star.' . $hostname . '.sh', implode("\n", $sh));
+    $sh = array();
+    if (!file_exists($file = __DIR__ . DS . 'configure.sh'))
+        $sh[] = "rm " . $file . "";
+    else {
+        $sh = explode("\n", file_get_contents($file));
+    }
+    $sh[] = "sh '$cmd'";
+    file_put_contents($file, implode("\n", $sh));
+}

@@ -26,7 +26,6 @@
  */
 
 
-
 if (!function_exists("getAuthKey")) {
     /**
      * checkEmail()
