@@ -38,7 +38,7 @@ while($domain = $GLOBALS['APIDB']->fetchArray($result)) {
         $sh[] = 'mkdir ' . dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys';
     if (!is_dir(dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr'))
         $sh[] = 'mkdir ' . dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr';
-    $sh[] = 'openssl req -new -key ' . ($rootkey = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys' . DS . 'star.'.$domain['domain'].'.key') . ' -out ' . ($rootcsr = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr' . DS . 'star.'.$domain['domain'].'.csr') . ' -subj "/C=AU/ST=New South Wales/L=Sydney, Australia/O=' . API_LICENSE_COMPANY . '/OU=IT Department/CN=*.'.$domain['domain'].'"';
+    $sh[] = 'openssl req -nodes -newkey rsa:2048 -keyout ' . ($rootkey = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys' . DS . 'star.'.$domain['domain'].'.key') . ' -out ' . ($rootcsr = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr' . DS . 'star.'.$domain['domain'].'.csr') . ' -subj "/C=AU/ST=New South Wales/L=Sydney, Australia/O=' . API_LICENSE_COMPANY . '/OU=IT Department/CN=*.'.$domain['domain'].'"';
     $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'ssl-domain.php.txt');
     $php = str_replace('%domainid', $domain['id'], $php);
     $php = str_replace('%basis', '*.'.$domain['domain'], $php);
@@ -69,7 +69,7 @@ while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
         $sh[] = 'mkdir ' . dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys';
     if (!is_dir(dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr'))
         $sh[] = 'mkdir ' . dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr';
-    $sh[] = 'openssl req -new -key ' . ($rootkey = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys' . DS . 'star.'.$hostname.'.key') . ' -out ' . ($rootcsr = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr' . DS . 'star.'.$hostname.'.csr') . ' -subj "/C=AU/ST=New South Wales/L=Sydney, Australia/O=' . API_LICENSE_COMPANY . '/OU=IT Department/CN=*.'.$domain['domain'].'"';
+    $sh[] = 'openssl req -nodes -newkey rsa:2048 -keyout ' . ($rootkey = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'keys' . DS . 'star.'.$hostname.'.key') . ' -out ' . ($rootcsr = dirname(API_SSL_CERTIFICATES_PATH) . DS . 'csr' . DS . 'star.'.$hostname.'.csr') . ' -subj "/C=AU/ST=New South Wales/L=Sydney, Australia/O=' . API_LICENSE_COMPANY . '/OU=IT Department/CN=*.'.$hostname.'"';
     $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'ssl-jump.php.txt');
     $php = str_replace('%jumpid', $jump['id'], $php);
     $php = str_replace('%basis', '*.'.$hostname, $php);

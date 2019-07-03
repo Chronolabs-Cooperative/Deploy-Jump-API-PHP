@@ -48,7 +48,7 @@ if (file_exists(API_SSL_FILE_CSR))  {
 	   	{
 	   		$parts = explode("\t", $value);
 	   		if (checkEmail($parts[1]))
-	    		$emails[] = $parts[1]
+	    		$emails[] = $parts[1];
 	   	}
 	    $aliases = array();
 	    $aliases[] = "# SSL aliases for " . $jump['sub-domain'] . '.' . $jump['hostname'];
