@@ -39,12 +39,13 @@ class PathStuffController
 
     public $apiPathDefault = array(
         'lib'  => 'tmp',
-        'tmp' => 'caches');
+        'tmp' => 'caches',
+        'www' => '/var/www',
+        'sites_available' => '/etc/apache2/sites-available',
+        'ssl_certificates' => '/etc/ssl/certs',
+        'awstats' => '/etc/awstats');
 
-    public $tmpPath = array(
-        'caches' => array(
-            'api_cache'),
-        'configs');
+    public $tmpPath = array();
 
     public $path_lookup = array(
         'root' => 'ROOT_PATH',
@@ -58,11 +59,7 @@ class PathStuffController
 
     public $apiUrl = '';
     public $apiCookieDomain = '';
-    public $apiWww = '';
     public $apiRootDomain = '';
-    public $apiSitesAvailable = '';
-    public $apiSslCertificates = '';
-    public $apiAwstats = '';
     
     public $validPath = array(
         'root' => 0,
@@ -70,7 +67,8 @@ class PathStuffController
         'lib'  => 0,
         'www' => 0,
         'sites_available' => 0,
-        'ssl_certificates' => 0
+        'ssl_certificates' => 0,
+        'awstats' => 0
     );
 
     public $validUrl = false;
@@ -125,23 +123,6 @@ class PathStuffController
                 $this->apiPath['awstats'] = $this->apiPathDefault['awstats'];
             }
         }
-        foreach($this->apiPath as $req => $value)
-            switch ($req)
-            {
-                case 'www':
-                    $this->apiWww = $value;
-                    break;
-                case 'ssl_certificates':
-                    $this->apiSslCertificates = $value;
-                    break;
-                case 'sites_available':
-                    $this->apiSitesAvailable = $value;
-                    break;
-                case 'awstats':
-                    $this->apiAwstats = $value;
-                    break;
-            }
-        
         if (isset($_SESSION['settings']['URL'])) {
             $this->apiUrl = $_SESSION['settings']['URL'];
         } else {
@@ -225,7 +206,7 @@ class PathStuffController
             if (isset($request['ROOT_DOMAIN'])) {
                 $tempRootDomain = getBaseDomain(trim($request['URL']));
                 $request['ROOT_DOMAIN'] = $tempRootDomain;
-                $this->apiCookieDomain = $tempRootDomain;;
+                $this->apiRootDomain = $tempRootDomain;;
             }
         }
     }
