@@ -146,15 +146,6 @@ else
     <pre style="max-height: 300px; overflow: scroll;">
     <?php echo htmlspecialchars(getHTMLForm('authkey')); ?>
     </pre>
-    <h2>SUPERMASTER Document Output</h2>
-    <p>This is done with the <em>supermaster.api</em> extension at the end of the url, you replace the example address with either a domain!</p>
-    <blockquote>
-        <?php echo getHTMLForm('newsupermaster', $authkey); ?>
-    </blockquote>
-    <h3>This the HTML Code surrounding the api call</h3>
-    <pre style="max-height: 300px; overflow: scroll;">
-    <?php echo htmlspecialchars(getHTMLForm('newsupermaster', $authkey)); ?>
-    </pre>
     <h2>DOMAIN Document Output</h2>
     <p>This is done with the <em>domain.api</em> extension at the end of the url, you replace the example address with either a domain!</p>
     <blockquote>

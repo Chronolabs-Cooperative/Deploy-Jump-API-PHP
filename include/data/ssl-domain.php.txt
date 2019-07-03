@@ -1,0 +1,75 @@
+<?php
+/**
+ * Zones is a DNS Propogation REST Services API for your services/servers!
+ *
+ * You may not change or alter any portion of this comment or credits
+ * of supporting developers from this source code or any supporting source code
+ * which is considered copyrighted (c) material of the original comment or credit authors.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * @copyright       Chronolabs Cooperative https://github.com/Chronolabs-Cooperative
+ * @license         General Public License version 3 (http://labs.coop/briefs/legal/general-public-licence/13,3.html)
+ * @package         zones-api
+ * @since           1.0.0
+ * @author          Simon Roberts <wishcraft@users.sourceforge.net>
+ * @subpackage		example-cron
+ * @description		Example Dynamic DNS Cron job/Scheduled Task
+ * @link			https://github.com/Chronolabs-Cooperative/Zones-API-PHP
+ */
+
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php';
+
+unlink (__FILE__);
+
+define('API_ALIASES', '/etc/aliases');
+define('API_DOMAINID', '%domainid');
+define('API_SSL_BASIS', '%basis');
+define('API_SSL_FILE_CSR', '%sslcsr');
+define('API_SSL_FILE_KEY', '%sslkey');
+define('API_SSL_FIELD_CSR', '%fieldcsr');
+define('API_SSL_FIELD_KEY', '%fieldkey');
+
+if (file_exists(API_SSL_FILE_CSR)) 
+    @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `" . API_SSL_FIELD_CSR ."` = " .API_SSL_FILE_CSR . ", `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_DOMAINID . "'");
+
+if (file_exists(API_SSL_FILE_KEY))
+    @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `" . API_SSL_FIELD_KEY ."` = " .API_SSL_FILE_KEY . ", `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_DOMAINID . "'");
+
+if (file_exists(API_SSL_FILE_CSR))  {
+
+    $domain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '" . API_DOMAINID . "'"));
+    $user = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('users') . "` WHERE `uid` = '" . $domain['api-uid'] . "'"));
+    
+    if (substr(API_SSL_BASIS, 0, 4) != '*.*.') {
+	    $aliases = array();
+	    $aliases[] = "# SSL aliases for " . $domain['domain'];
+	    $aliases[] = "webmaster:\tssl-" . str_replace('.', '-', $domain['domain']);
+	    $aliases[] = "hostmaster:\tssl-" . str_replace('.', '-', $domain['domain']);
+	    $aliases[] = "admin:\tssl-" . str_replace('.', '-', $domain['domain']);
+	    if ($domain['admin-email'] != "webmaster@".$domain['domain'])
+	        $aliases[] = "ssl-" . str_replace('.', '-', $domain['domain']). ":\t" .$domain['admin-email'];
+	    if (isset($user['email']))
+	        $aliases[] = "ssl-" . str_replace('.', '-', $domain['domain']). ":\t" . $user['email'];
+	    $aliases[] = "";
+	    foreach(explode("\n", file_get_contents(API_ALIASES)) as $value)
+	        $aliases[] = $value;
+	    file_put_contents(API_ALIASES, implode("\n", $aliases));
+	    if (file_exists(API_ALIASES . '.db'))
+	        unlink(API_ALIASES . '.db');
+	    exec("postmap " . API_ALIASES, $output, $result);
+	}
+	
+    require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'apimailer.php';
+    $mail = new APIMailer(API_LICENSE_EMAIL, API_LICENSE_COMPANY);
+    $body = file_get_contents(__DIR__  . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'ssl_csr_emailtemplate.html' );
+    $body = str_replace('%apilogo', API_URL . '/assets/images/logo_350x350.png', $body);
+    $body = str_replace('%apiurl', API_URL, $body);
+    $body = str_replace('%apisslurl', API_URL . '/v1/' . str_replace('*', 'star', API_SSL_BASIS) . '/' . md5($domain['api-uid'] . $domain['id'] . $domain['domain'] . $domain['ssl']) . '/ssl.html' , $body);
+    $body = str_replace('%csr', file_get_contents(API_SSL_FILE_CSR), $body);
+    $body = str_replace('%companyname', API_LICENSE_COMPANY, $body);
+    $body = str_replace('%basis', API_SSL_BASIS, $body);
+    $mail->sendMail(array((!empty($user['name'])?$user['name']:$user['email']) => $user['email']), array(), array(), "SSL CSR Generated: " . API_SSL_BASIS, $body, array(basename(API_SSL_FILE_CSR) => API_SSL_FILE_CSR), "", true);
+        
+}

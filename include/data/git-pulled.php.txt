@@ -27,4 +27,4 @@ unlink (__FILE__);
 
 define('API_JUMPID', '%jumpid');
 
-@$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('jumps') . "` SET `github-pulled` = UNIX_TIMESTAMP() WHERE `id` = '" . API_JUMPID . "'");
+@$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('jumps') . "` SET `github-pulled` = UNIX_TIMESTAMP(), `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_JUMPID . "'");

@@ -90,16 +90,18 @@
 	        header('Content-type: text');
 	        die(implode("\n", $data));
 	        break;
+	    case 'domains':
+	        if (!empty($inner['domain']))
+	            $data = addDomains($inner['authkey'], $inner['domain'], $inner['format']);
+            else
+                $data = getDomains($inner['authkey'], $inner['format']);
+            break;
+            
 	    /*case 'newsupermaster':
 	    case 'supermaster':
 	        $data = addSupermaster($inner['authkey'], $inner['ip'], $inner['nameserver'], $inner['format']);
 	        break;
-	    case 'domains':
-	        if (!empty($inner['name']) || !empty($inner['master']) &&  !empty($inner['type']))
-	           $data = addDomains($inner['authkey'], $inner['name'], $inner['master'], $inner['type'], $inner['format']);
-	        else 
-	            $data = getDomains($inner['authkey'], $inner['format']);
-	        break;
+	    
 	    case 'masters':
 	        $data = getSupermasters($inner['authkey'], $inner['format']);
 	        break;

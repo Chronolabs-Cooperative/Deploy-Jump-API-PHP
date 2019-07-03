@@ -14,4 +14,6 @@ RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/verify.api ./index.php?version=$1&key=
 RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/callback.api ./callback.php?version=$1&authkey=$2 [L,NC,QSA]
 RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-zA-Z]{32})/callback.api ./callback.php?version=$1&authkey=$2&key=$3 [L,NC,QSA]
 RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-zA-Z]{32})/([0-9a-zA-Z]{32})/callback.api ./callback.php?version=$1&authkey=$2&mode=$3&key=$4 [L,NC,QSA]
-
+RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/(domains).api ./index.php?version=$1&authkey=$2&mode=$3 [L,NC,QSA]
+RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/(jumps|domains|users)/(raw|html|serial|json|xml).api ./index.php?version=$1&authkey=$2&mode=$3&format=$4 [L,NC,QSA]
+RewriteRule ^v([0-9]{1,2})/([0-9a-z]{32})/([0-9a-z]{32})/(edit|delete)/(jump|domain|user)/(raw|html|serial|json|xml).api ./index.php?version=$1&authkey=$2&key=$3&mode=$4&type=$5&format=$6 [L,NC,QSA]

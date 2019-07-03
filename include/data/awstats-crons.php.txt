@@ -27,4 +27,4 @@ unlink (__FILE__);
 
 define('API_JUMPID', '%jumpid');
 
-@$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('jumps') . "` SET `awstats-crons-configured` = (UNIX_TIMESTAMP() + (((60 * 5) * RAND()) + (RAND() * (60 * 29))) WHERE `id` = '" . API_JUMPID . "'");
+@$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('jumps') . "` SET `awstats-crons-configured` = (UNIX_TIMESTAMP() + (((60 * 5) * RAND()) + (RAND() * (60 * 29))), `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_JUMPID . "'");

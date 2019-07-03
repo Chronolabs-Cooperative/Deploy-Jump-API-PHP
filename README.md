@@ -35,3 +35,4 @@ These are to go in you're crontab console
     */17 * * * * php -q /var/www/deploy.jump.snails.email/crons/awstats-crons.php
     */8 * * * * php -q /var/www/deploy.jump.snails.email/crons/jumpapi-crons.php
     */13 */2 * * * php -q /var/www/deploy.jump.snails.email/crons/github-configure.php
+    */15 * * * * php -q /var/www/deploy.jump.snails.email/crons/ssl-configure.php
