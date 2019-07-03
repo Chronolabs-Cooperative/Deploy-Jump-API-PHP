@@ -81,5 +81,7 @@ $configs['api_url'] = array(
     'zones' => 'http://zones.vps-a.snails.email',
     'strata' => 'http://strata.snails.email',
     'whois' => 'http://whois.snails.email',
+    'lookups' => 'http://lookups.snails.email',
+    'places' => 'http://places.snails.email',
     'masterhost' => $_SESSION['settings']['URL'],
 );

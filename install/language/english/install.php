@@ -63,7 +63,8 @@ define('PATHS_SETTINGS', 'Paths settings');
 define('PATHS_SETTINGS_TITLE', 'Paths settings');
 define('EXTRA_SETTINGS', 'Extra settings + URLs');
 define('EXTRA_SETTINGS_TITLE', 'Extra settings + URLs');
-define('IMPORT_JUMPAPI', 'Import Jump API + Deployment');
+define('API_IMPORT_JUMPAPI', 'Current Import of Existing Short URL REST API\'s');
+define('IMPORT_JUMPAPI', 'Import Jump API');
 define('IMPORT_JUMPAPI_TITLE', 'Import Jump API + Deployment');
 define('DATABASE_CONNECTION', 'Database connection');
 define('DATABASE_CONNECTION_TITLE', 'Database connection');
@@ -93,8 +94,12 @@ define('API_URL_LABEL', 'Website location (URL)'); // L56
 define('API_URL_HELP', 'Main URL that will be used to access your API installation'); // L58
 define('API_STRATA_LABEL', 'Internet Domain+Fallout REST Services API (see: <a href="https://github.com/Chronolabs-Cooperative/Strata-API-PHP" target="_blank">github.com...</a>)');
 define('API_STRATA_HELP', 'Physical URL to the REST API as installed from github.com');
-define('API_WHOIS_LABEL', 'IP+Domain Whois REST Services API (see: <a href="https://github.com/Chronolabs-Cooperative/Emails-API-PHP" target="_blank">github.com...</a>)');
+define('API_WHOIS_LABEL', 'IP+Domain Whois REST Services API (see: <a href="https://github.com/Chronolabs-Cooperative/Whois-API-PHP" target="_blank">github.com...</a>)');
 define('API_WHOIS_HELP', 'Physical URL to the REST API as installed from github.com');
+define('API_LOOKUPS_LABEL', 'IPv4, IPv6 Locational Lookups REST Services API (see: <a href="https://github.com/Chronolabs-Cooperative/Lookups-API-PHP" target="_blank">github.com...</a>)');
+define('API_LOOKUPS_HELP', 'Physical URL to the REST API as installed from github.com');
+define('API_PLACES_LABEL', 'Locational Places REST Services API (see: <a href="https://github.com/Chronolabs-Cooperative/Places-API-PHP" target="_blank">github.com...</a>)');
+define('API_PLACES_HELP', 'Physical URL to the REST API as installed from github.com');
 define('API_MASTERHOST_LABEL', 'The URL to the physical master peering hostname and URL basenamed');
 define('API_MASTERHOST_HELP', 'Physical URL to this REST API as installed from github.com as the master peering hostname + URL path');
 define('API_SSL_CERTIFICATES_LABEL', 'SSL Certificates Storage Paths');

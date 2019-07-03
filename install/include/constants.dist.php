@@ -30,6 +30,10 @@
 // APIs URLS
 define('API_STRATA_API_URL', '');
 define('API_WHOIS_API_URL', '');
+define('API_LOOKUPS_API_URL', '');
+define('API_PLACES_API_URL', '');
+
+// API Zones REST API
 define('API_ZONES_API_URL', '');
 define('API_ZONES_USERNAME_URL', '');
 define('API_ZONES_PASSWORD_URL', '');

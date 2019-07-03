@@ -3,10 +3,10 @@ DROP TABLE `ips`;
 CREATE TABLE `ips` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `modal` enum('jump','director','focus','other') NOT NULL DEFAULT 'other',
+  `local-id` mediumint(128) NOT NULL DEFAULT '0',
   `ipv4` varchar(32) NOT NULL  DEFAULT '',
   `ipv6` varchar(128) NOT NULL  DEFAULT '',
   `netbios` varchar(250) NOT NULL  DEFAULT '',
-  `tld-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `uids` tinytext,
   `api-uid` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `used-domains` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -81,5 +81,3 @@ CREATE TABLE `ips` (
   KEY `ips_chronologistics_idx` (`hits-last`,`hits-previous`,`create-last`,`create-previous`,`data-last`,`data-previous`,`created`,`updated`,`blacklisted`,`whitelisted`),
   KEY `ips_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`,`quarter-start`,`quarter-ended`,`year-start`,`year-ended`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-

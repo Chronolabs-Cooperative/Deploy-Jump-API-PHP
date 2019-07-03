@@ -57,7 +57,7 @@ foreach($folders as $folder) {
 }
 ?>
     <div class="panel panel-info">
-        <div class="panel-heading"><?php echo API_CONFIG_JUMPAPI; ?></div>
+        <div class="panel-heading"><?php echo API_IMPORT_JUMPAPI; ?></div>
         <div class="panel-body">
         <div class="form-group">
         <div class="form-group">

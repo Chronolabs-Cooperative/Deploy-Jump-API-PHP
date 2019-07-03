@@ -3,7 +3,7 @@ DROP TABLE `statistician`;
 CREATE TABLE `statistician` (
   `id` mediumint(199) UNSIGNED NOT NULL AUTO_INCREMENT,
   `modal` enum('hour','day','week','fortnight','month','quarter','year','other') DEFAULT 'other',
-  `type` enum('domain','jump','director','tld','ip','keyword','other') DEFAULT 'other',
+  `type` enum('domain','jump','director','tld','ip','keyword','local-country','local-state','local-place','other') DEFAULT 'other',
   `type-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `weight` int(69) UNSIGNED NOT NULL DEFAULT '0',
   `year` int(4) UNSIGNED NOT NULL DEFAULT '2019',

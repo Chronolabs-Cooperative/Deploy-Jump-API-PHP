@@ -101,6 +101,18 @@ ob_start();
                 <div class="xoform-help alert alert-info"><?php echo API_WHOIS_HELP; ?></div>
                 <input type="text" class="form-control" name="WHOIS" id="whois" value="<?php echo $wizard->configs['api_url']['whois']; ?>" onchange="removeTrailing('url', this.value)"/>
             </div>
+                        
+            <div class="form-group">
+                <label class="xolabel" for="whois"><?php echo API_LOOKUPS_LABEL; ?></label>
+                <div class="xoform-help alert alert-info"><?php echo API_LOOKUPS_HELP; ?></div>
+                <input type="text" class="form-control" name="LOOKUPS" id="whois" value="<?php echo $wizard->configs['api_url']['lookups']; ?>" onchange="removeTrailing('url', this.value)"/>
+            </div>
+                        
+            <div class="form-group">
+                <label class="xolabel" for="places"><?php echo API_PLACES_LABEL; ?></label>
+                <div class="xoform-help alert alert-info"><?php echo API_PLACES_HELP; ?></div>
+                <input type="text" class="form-control" name="PLACES" id="places" value="<?php echo $wizard->configs['api_url']['places']; ?>" onchange="removeTrailing('url', this.value)"/>
+            </div>
             
             <div class="form-group">
                 <label class="xolabel" for="masterhost"><?php echo API_MASTERHOST_LABEL; ?></label>
