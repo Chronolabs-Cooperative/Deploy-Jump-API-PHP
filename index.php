@@ -91,8 +91,8 @@
 	        die(implode("\n", $data));
 	        break;
 	    case 'domains':
-	        if (!empty($inner['domain']))
-	            $data = addDomains($inner['authkey'], $inner['domain'], $inner['format']);
+	        if (!empty($inner['domain']) && !empty($inner['adminemail']))
+	            $data = addDomains($inner['authkey'], $inner['domain'], $inner['adminemail'], $inner['format']);
             else
                 $data = getDomains($inner['authkey'], $inner['format']);
             break;

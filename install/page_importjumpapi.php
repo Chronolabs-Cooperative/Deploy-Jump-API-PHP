@@ -51,7 +51,8 @@ foreach($folders as $folder) {
                 $jumpapi = true;
                 continue;
             }
-        $jumpapis[$folder] = API_WWW_PATH . DIRECTORY_SEPARATOR . $folder;
+        if ($jumpapi == true)
+            $jumpapis[$folder] = API_WWW_PATH . DIRECTORY_SEPARATOR . $folder;
     }
 }
 ?>

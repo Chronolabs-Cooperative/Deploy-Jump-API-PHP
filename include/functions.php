@@ -52,6 +52,8 @@ if (!function_exists("getAuthKey")) {
             $_SESSION['authkey'] = $authkey;
             $_SESSION['credentials']['username'] = $username;
             $_SESSION['credentials']['password'] = $password;
+            $_SESSION['credentials']['uid'] = $uid;
+            $_SESSION['credentials']['email'] = $email;
             setcookie('authkey', $_SESSION['authkey'], 3600 + $time, '/', API_COOKIE_DOMAIN);
             $return = array('code' => 201, 'authkey' => $_SESSION['authkey'], 'errors' => array());
         } else {
@@ -216,7 +218,7 @@ if (!function_exists("addDomains")) {
      * @param mixed $antispam
      * @return bool|mixed
      */
-    function addDomains($authkey, $domain = '', $format = 'json')
+    function addDomains($authkey, $domain = '', $adminemail = '', $format = 'json')
     {
         $nameservices = explode("\n", getURIData(API_ZONES_API_URL . DS . 'include' . DS . 'data' . DS . 'name-servers.diz'));
         $return = checkAuthKey($authkey);
@@ -244,12 +246,16 @@ if (!function_exists("addDomains")) {
             
             if (count($nameservices)>0) 
                 return array('code' => 501, 'errors' => array('403' => "Name Service on Domain: $domain must include services: " . implode(', ', $nameservices)));
-                
+            
+            if (!checkEmail($adminemail))
+                return array('code' => 501, 'errors' => array('401' => "Admin Email isn't a valid address: $adminemail"));
+            
             $sql = "SELECT COUNT(*) FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE (`domain` LIKE '$domain')";
             list($count) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
             if ($count==0)
             {
-                $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('domains') . "` (`domain`, `api-uid`, `created`) VALUES ('$domain', '" . $GLOBALS['uid'] . "', UNIX_TIMESTAMP())";
+                
+                $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('domains') . "` (`domain`, `admin-email`, `api-uid`, `created`) VALUES ('$domain', '$adminemail', '" . $GLOBALS['uid'] . "', UNIX_TIMESTAMP())";
                 if ($GLOBALS['APIDB']->queryF($sql))
                 {
                     $sql = "SELECT md5(concat(`id`, '" . API_URL . "', 'domain')) FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '".$GLOBALS['APIDB']->getInsertId()."'";
@@ -1211,6 +1217,15 @@ function getHTMLForm($mode = '', $authkey = '')
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td>";
             $form[] = "\t\t\t\t<input type='textbox' name='domain' id='domain' size='41' />&nbsp;&nbsp;";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>&nbsp;</td>";
+            $form[] = "\t\t</tr>";
+            $form[] = "\t\t<tr>";
+            $form[] = "\t\t\t<td style='width: 320px;'>";
+            $form[] = "\t\t\t\t<label for='adminemail'>Admin Email:&nbsp;<font style='color: rgb(250,0,0); font-size: 139%; font-weight: bold'>*</font></label>";
+            $form[] = "\t\t\t</td>";
+            $form[] = "\t\t\t<td>";
+            $form[] = "\t\t\t\t<input type='textbox' name='adminemail' id='adminemail' size='41' value='" . (isset($_SESSION['credentials']['email'])?$_SESSION['credentials']['email']:API_LICENSE_EMAIL) ."' />&nbsp;&nbsp;";
             $form[] = "\t\t\t</td>";
             $form[] = "\t\t\t<td>&nbsp;</td>";
             $form[] = "\t\t</tr>";
