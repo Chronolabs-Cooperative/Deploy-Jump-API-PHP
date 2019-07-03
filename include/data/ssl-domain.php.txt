@@ -32,10 +32,12 @@ define('API_SSL_FIELD_CSR', '%fieldcsr');
 define('API_SSL_FIELD_KEY', '%fieldkey');
 
 if (file_exists(API_SSL_FILE_CSR)) 
-    @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `" . API_SSL_FIELD_CSR ."` = " .API_SSL_FILE_CSR . ", `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_DOMAINID . "'");
+    if (!$GLOBALS['APIDB']->queryF($sql = $GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `" . API_SSL_FIELD_CSR ."` = '" .API_SSL_FILE_CSR . "', `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_DOMAINID . "'"))
+        echo "\nSQL Error: $sql";
 
 if (file_exists(API_SSL_FILE_KEY))
-    @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `" . API_SSL_FIELD_KEY ."` = " .API_SSL_FILE_KEY . ", `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_DOMAINID . "'");
+    if (!$GLOBALS['APIDB']->queryF($sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `" . API_SSL_FIELD_KEY ."` = '" .API_SSL_FILE_KEY . "', `updated` = UNIX_TIMESTAMP() WHERE `id` = '" . API_DOMAINID . "'"))
+	    echo "\nSQL Error: $sql";
 
 if (file_exists(API_SSL_FILE_CSR))  {
 
