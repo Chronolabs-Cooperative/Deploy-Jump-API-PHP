@@ -11,7 +11,7 @@ if ($staters = APICache::read('awstats-crons'))
     if (count($starters)>50)
         unset($starters[0]);
         sort($staters, SORT_ASC);
-        APICache::write('find-mx-services', $staters, 3600 * 24 * 7 * 4 * 6);
+        APICache::write('awstats-cron', $staters, 3600 * 24 * 7 * 4 * 6);
         $keys = array_key(array_reverse($starters));
         $avg = array();
         foreach(array_reverse($starters) as $key => $starting) {
@@ -32,22 +32,18 @@ if ($staters = APICache::read('awstats-crons'))
 
 $domainids = array();
 $sh = array();
-$sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `awstats-crons-configured` = 0 OR `awstats-crons-configured` < UNIX_TIMESTAMP()";
+$sql = "SELECT DISTINCT `domain-id` FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE 1 = 1 GROUP BY `domain-id`";
 $result = $GLOBALS['APIDB']->queryF($sql);
 while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
-    $domain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '" . $jump['domain-id'] . "'"));
-    $domainids[$domain['id']] = $domain['id'];
+    $domainids[$jump['domain-id']] = $jump['domain-id'];
 }
-
-if (count($domainsids) > 0) {
-    $jumpids = array();
-    $sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `domain-id` IN (" . implode(', ', $domainids) . ")";
+if (count($domainids) > 0) {
+    $sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `awstats-crons-configured` < UNIX_TIMESTAMP() AND `domain-id` IN (" . implode(', ', $domainids) . ")";
     $result = $GLOBALS['APIDB']->queryF($sql);
     while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
-        $domain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '" . $jump['domain-id'] . "'"));
         $jumpids[$jump['id']] = $jump['id'];
         $sh[($hostname = $jump['sub-domain'] . '.' . $jump['hostname'])]['cmd'] = '/usr/lib/cgi-bin/awstats.pl -config=' . $hostname . " -update ";
-        $sh[$hostname]['jumpid'] = $jump['id']; 
+        $sh[$hostname]['jumpid'] = $jump['id'];
     }
 }
 $keys = array_keys($sh);
@@ -63,7 +59,7 @@ foreach($keys as $key) {
     $shs[$ii][$key] = $sh[$key]['cmd'];
     $cmds[$ii][$key] = 'php -q "' . ($file = __DIR__ . DS . 'configure-awstats-crons-' . $ii . '-' . $key . '.php') . "\"";
     $php = file_get_contents(dirname(__DIR__) . DS . 'include' . DS . 'data' . DS . 'awstats-crons.php.txt');
-    $php = str_replace('%jumpid', $jump['id'], $php);
+    $php = str_replace('%jumpid', $sh[$key]['jumpid'], $php);
     file_put_contents($file, $php);
     $ii++;
     if ($ii > $step)

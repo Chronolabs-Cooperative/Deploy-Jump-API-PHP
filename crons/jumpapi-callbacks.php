@@ -10,7 +10,7 @@ if ($staters = APICache::read('jumpapi-callback'))
     if (count($starters)>50)
         unset($starters[0]);
         sort($staters, SORT_ASC);
-        APICache::write('find-mx-services', $staters, 3600 * 24 * 7 * 4 * 6);
+        APICache::write('jumpapi-callback', $staters, 3600 * 24 * 7 * 4 * 6);
         $keys = array_key(array_reverse($starters));
         $avg = array();
         foreach(array_reverse($starters) as $key => $starting) {
@@ -25,30 +25,28 @@ if ($staters = APICache::read('jumpapi-callback'))
         } else
             $seconds = 1800;
 } else {
-    APICache::write('awstats-crons', array(0=>$start), 3600 * 24 * 7 * 4 * 6);
+    APICache::write('jumpapi-callback', array(0=>$start), 3600 * 24 * 7 * 4 * 6);
     $seconds = 1800;
 }
 
 $domainids = array();
 $sh = array();
-$sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE 1 = 1";
+$sql = "SELECT DISTINCT `domain-id` FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE 1 = 1 GROUP BY `domain-id`";
 $result = $GLOBALS['APIDB']->queryF($sql);
 while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
-    $domain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '" . $jump['domain-id'] . "'"));
-    $domainids[$domain['id']] = $domain['id'];
+    $domainids[$jump['domain-id']] = $jump['domain-id'];
 }
-
-if (count($domainsids) > 0) {
+if (count($domainids) > 0) {
     $jumpids = array();
     $sql = "SELECT * FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `domain-id` IN (" . implode(', ', $domainids) . ")";
     $result = $GLOBALS['APIDB']->queryF($sql);
     while($jump = $GLOBALS['APIDB']->fetchArray($result)) {
-        $domain = $GLOBALS['APIDB']->fetchArray($GLOBALS['APIDB']->queryF("SELECT * FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `id` = '" . $jump['domain-id'] . "'"));
         $jumpids[$jump['id']] = $jump['id'];
-        if (file_exists(API_WWW_PATH . DS . $hostname . DS . 'crons' . DS . 'jump-deploy-calling.php'))
-            $sh[($hostname = $jump['sub-domain'] . '.' . $jump['hostname'])]['cmd'] = 'php -q "' . API_WWW_PATH . DS . $hostname . DS . 'crons' . DS . 'jump-deploy-calling.php"';
+        if (file_exists(API_WWW_PATH . DS . $jump['sub-domain'] . '.' . $jump['hostname'] . DS . 'crons' . DS . 'jump-deploy-calling.php'))
+            $sh[($hostname = $jump['sub-domain'] . '.' . $jump['hostname'])] = 'php -q "' . API_WWW_PATH . DS . $hostname . DS . 'crons' . DS . 'jump-deploy-calling.php"';
     }
 }
+
 $keys = array_keys($sh);
 shuffle($keys);
 shuffle($keys);
@@ -59,7 +57,7 @@ $step = (floor(count($sh) / 4) > 1 ? 4 : (floor(count($sh) / 3) > 1 ? 3 : (floor
 $ii=1;
 $shs = $cmds = array();
 foreach($keys as $key) {
-    $shs[$ii][$key] = $sh[$key]['cmd'];
+    $shs[$ii][$key] = $sh[$key];
     $ii++;
     if ($ii > $step)
         $ii = 1;
