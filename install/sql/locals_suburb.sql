@@ -1,21 +1,18 @@
-DROP TABLE `locals`;
+DROP TABLE `locals_suburbs`;
 
-CREATE TABLE `locals` (
+CREATE TABLE `locals_suburbs` (
   `id` mediumint(128) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `modal` enum('jump','director','ip','tld','other') NOT NULL DEFAULT 'other',
-  `domain-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
-  `jump-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
-  `director-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
-  `tld-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
-  `ip-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
-  `other-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `country-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
-  `state-id` int(128) UNSIGNED NOT NULL DEFAULT '0',
-  `suburb-id` int(128) UNSIGNED NOT NULL DEFAULT '0',
-  `place-id` int(250) UNSIGNED NOT NULL DEFAULT '0',
-  `place-key` varchar(64) NOT NULL DEFAULT '',
+  `state-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `suburb` varchar(200) NOT NULL  DEFAULT '',
+  `abbr` varchar(6) NOT NULL  DEFAULT '',
+  `places-key` varchar(64) NOT NULL  DEFAULT '',
   `longitude` decimal(16,12) NOT NULL  DEFAULT '0.000000000000',
   `latitude` decimal(16,12) NOT NULL  DEFAULT '0.000000000000',
+  `min-longitude` decimal(16,12) NOT NULL  DEFAULT '0.000000000000',
+  `min-latitude` decimal(16,12) NOT NULL  DEFAULT '0.000000000000',
+  `max-longitude` decimal(16,12) NOT NULL  DEFAULT '0.000000000000',
+  `max-latitude` decimal(16,12) NOT NULL  DEFAULT '0.000000000000',
   `hour-start` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `hour-ended` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `day-start` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -44,10 +41,8 @@ CREATE TABLE `locals` (
   `created` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `updated` int(11) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `locals_index` (`modal`,`domain-id`,`jump-id`,`director-id`,`tld-id`,`ip-id`,`other-id`,`country-id`,`state-id`,`suburb-id`),
-  KEY `locals_search` (`longitude`,`latitude`),
-  KEY `locals_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`,`quarter-start`,`quarter-ended`,`year-start`,`year-ended`)
+  UNIQUE KEY `suburbs_index` (`suburb`,`country-id`,`abbr`),
+  KEY `suburbs_search` (`longitude`,`latitude`,`places-key`),
+  KEY `suburbs_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`,`quarter-start`,`quarter-ended`,`year-start`,`year-ended`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
 

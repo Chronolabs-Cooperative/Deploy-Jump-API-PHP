@@ -62,11 +62,12 @@ foreach($folders as $folder) {
         <div class="form-group">
         <div class="form-group">
                 <div id="article" class="article">
-		   <?php foreach($jumpapis as $folder => $path) { 
+		   <?php $jumpii = 0; foreach($jumpapis as $folder => $path) { 
+		       $jumpii++;
 		      $sql = "SELECT `id` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `domain` LIKE '" . ($hostname = getBaseDomain("http://".$folder)) ."'";
 		      list($domainid) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
 		      if ($domainid==0) {
-		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('domains') . "` (`api-uid`, `domain`, `admin-email`, `created`) VALUES ('1', '$hostname', 'webmaster@$hostname', UNIX_TIMESTAMP())";
+		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('domains') . "` (`api-uid`, `domain`, `admin-email`, `created`) VALUES ('1', '$hostname', '" . API_LICENSE_EMAIL . "', UNIX_TIMESTAMP())";
 		          if ($GLOBALS['APIDB']->queryF($sql)) {
 		              $domainid = $GLOBALS['APIDB']->getInsertId();
 ?>					<div id="item" class="item">Domain: <?php echo $hostname; ?> (<?php echo $domainid; ?>) - Created!</div>
@@ -83,11 +84,10 @@ foreach($folders as $folder) {
 		      $sql = "SELECT `id` FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `domain-id` = '$domainid' AND `sub-domain` LIKE '" . $subdomain ."' AND `hostname` LIKE '" . $host ."'";
 		      list($jumpid) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
 		      if ($jumpid==0) {
-		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('jumps') . "` (`api-uid`, `domain-id`, `sub-domain`, `hostname`, `created`) VALUES ('1', '$domainid', '$subdomain', '$host', UNIX_TIMESTAMP())";
+		          $sql = "INSERT INTO `" . $GLOBALS['APIDB']->prefix('jumps') . "` (`api-uid`, `admin-email`, `domain-id`, `sub-domain`, `hostname`, `created`) VALUES ('1', '" . API_LICENSE_EMAIL . "', '$domainid', '$subdomain', '$host', UNIX_TIMESTAMP())";
 		          if ($GLOBALS['APIDB']->queryF($sql)) {
-		              @$GLOBALS['APIDB']->queryF("UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . " SET `jumps` = `jumps` + 1 WHERE `id` = $domainid");
 		            $jumpid = $GLOBALS['APIDB']->getInsertId();
-?>					<div id="item" class="item">Jump Sub-domain: <?php echo $folder; ?> (<?php echo $jumpid; ?> / <?php echo $domainid; ?> ) - Created!</div>
+?>					<div id="item" class="item">Jump Sub-domain: <?php echo $folder; ?> (<?php echo $jumpii; ?> / <?php echo count($jumpapis); ?> ) - Created!</div>
 <?php 
 		          } else {
 ?>					<div id="item" class="item error">Jump Sub-domain: <?php echo $folder; ?> - Error Creating [<?php echo $sql; ?>]!</div>
@@ -98,15 +98,19 @@ foreach($folders as $folder) {
 		          chmod($path . '/deployment.php', 0777);
 		          unlink($path . '/deployment.php');
 		      }
-		      if (writeConfigurationFile(array('DEPLOYMENT_URL' => API_URL, 'DEPLOYMENT_USERNAME' => $_SESSION['settings']['ADMIN_UNAME'], 'DEPLOYMENT_PASSWORD' => $_SESSION['settings']['ADMIN_PASS']), $path, 'deployment.dist.php', 'deployment.php')) {
-?>					<div id="item" class="item">Jump Deployment: <?php echo $path . DIRECTORY_SEPARATOR . 'deployment.php'; ?> (<?php echo $jumpid; ?> / <?php echo $domainid; ?> ) - Created!</div>
+		      if (writeConfigurationFile(array('DEPLOYMENT_ROOTDOMAIN' => API_ROOT_DOMAIN, 'DEPLOYMENT_EMAILDOMAIN' => API_EMAIL_DOMAIN, 'DEPLOYMENT_URL' => API_URL, 'DEPLOYMENT_USERNAME' => $_SESSION['settings']['ADMIN_UNAME'], 'DEPLOYMENT_PASSWORD' => $_SESSION['settings']['ADMIN_PASS']), $path, 'deployment.dist.php', 'deployment.php')) {
+		          ?>					<div id="item" class="item">Jump Deployment: <?php echo $path . DIRECTORY_SEPARATOR . 'deployment.php'; ?> (<?php echo $jumpii; ?> / <?php echo count($jumpapis); ?> ) - Created!</div>
 <?php 
                 chmod($path . '/deployment.php', 0644);
 		      } else {
-?>					<div id="item" class="item error">Jump Deployment: <?php echo $path . DIRECTORY_SEPARATOR . 'deployment.php'; ?> (<?php echo $jumpid; ?> / <?php echo $domainid; ?> ) - Error Creating!</div>
+		          ?>					<div id="item" class="item error">Jump Deployment: <?php echo $path . DIRECTORY_SEPARATOR . 'deployment.php'; ?> (<?php echo $jumpid; ?> / <?php echo count($jumpapis); ?> ) - Error Creating!</div>
 <?php 
 		      }
-		       
+		      $sql = "SELECT count(*) as `count` FROM `" . $GLOBALS['APIDB']->prefix('jumps') . "` WHERE `domain-id` = '$domainid'";
+		      list($jumpcount) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));
+		      $sql = "UPDATE `" . $GLOBALS['APIDB']->prefix('domains') . "` SET `jumps` = '$jumpcount' WHERE `id` = '$domainid'";
+		      @$GLOBALS['APIDB']->queryF($sql);
+		      
 		   }?>
            		</div>
            </div>

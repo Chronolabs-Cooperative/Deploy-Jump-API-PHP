@@ -76,6 +76,9 @@ if (!defined('API_MAINFILE_INCLUDED')) {
     // Root of website jump domain (i.e. jump.example.com is example.com)
     define('API_ROOT_DOMAIN', '');
     
+    // Root of website jump domain (i.e. jump.example.com is example.com)
+    define('API_EMAIL_DOMAIN', '');
+    
     // Shall be handled later, don't forget!
     define('API_CHECK_PATH', 0);
     

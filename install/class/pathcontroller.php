@@ -31,10 +31,10 @@ class PathStuffController
         'root' => '',
         'lib'  => '',
         'tmp' => '',
-        'www' => '',
-        'sites_available' => '',
-        'ssl_certificates' => '',
-        'awstats' => ''
+        'www' => '/var/www',
+        'sites_available' => '/etc/apache2/sites-available',
+        'ssl_certificates' => '/etc/ssl/certs',
+        'awstats' => '/etc/awstats'
     );
 
     public $apiPathDefault = array(
@@ -139,6 +139,11 @@ class PathStuffController
         } else {
             $this->apiRootDomain = getBaseDomain($this->apiUrl);
         }
+        if (isset($_SESSION['settings']['ROOT_DOMAIN'])) {
+            $this->apiEmailDomain = $_SESSION['settings']['EMAIL_DOMAIN'];
+        } else {
+            $this->apiEmailDomain = 'alias.'.getBaseDomain($this->apiUrl);
+        }
     }
 
     public function execute($file = '')
@@ -154,6 +159,7 @@ class PathStuffController
                     $_SESSION['settings']['URL'] = $this->apiUrl;
                     $_SESSION['settings']['COOKIE_DOMAIN'] = $this->apiCookieDomain;
                     $_SESSION['settings']['ROOT_DOMAIN'] = $this->apiRootDomain;
+                    $_SESSION['settings']['EMAIL_DOMAIN'] = $this->apiEmailDomain;
                     if ($valid) {
                         $GLOBALS['wizard']->redirectToPage('+1');
                     } else {
@@ -162,13 +168,11 @@ class PathStuffController
                 }
                 break;
             case 'page_extrasettings.php':
+                global $wizard;
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $_SESSION['settings']['ZONES_URL'] = $_REQUEST['ZONES'];
-                    $_SESSION['settings']['ZONES_USERNAME_URL'] = $_REQUEST['ZONES_USERNAME'];
-                    $_SESSION['settings']['ZONES_PASSWORD_URL'] = $_REQUEST['ZONES_PASSWORD'];
-                    $_SESSION['settings']['STRATA_URL'] = $_REQUEST['STRATA'];
-                    $_SESSION['settings']['WHOIS_URL'] = $_REQUEST['WHOIS'];
-                    $_SESSION['settings']['MASTERHOST_URL'] = $_REQUEST['MASTERHOST'];
+                    foreach ($wizard->configs['api_url'] as $req => $sess) {
+                        $_SESSION['settings'][strtoupper($req). '_URL'] = $_REQUEST[$req];
+                    }
                     $GLOBALS['wizard']->redirectToPage('+1');
                 }
         }
@@ -206,6 +210,12 @@ class PathStuffController
             if (isset($request['ROOT_DOMAIN'])) {
                 $tempRootDomain = getBaseDomain(trim($request['URL']));
                 $request['ROOT_DOMAIN'] = $tempRootDomain;
+                $this->apiRootDomain = $tempRootDomain;;
+            }
+            
+            if (isset($request['EMAIL_DOMAIN'])) {
+                $tempRootDomain = 'alias.'.getBaseDomain(trim($request['URL']));
+                $request['EMAIL_DOMAIN'] = $tempRootDomain;
                 $this->apiRootDomain = $tempRootDomain;;
             }
         }

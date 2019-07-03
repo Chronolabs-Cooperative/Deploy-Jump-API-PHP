@@ -63,7 +63,11 @@ $configs['modules'] = array();
 
 // api_lib, api_tmp directories
 $configs['apiPathDefault'] = array(
-    'lib'  => 'data');
+    'lib'  => 'data',
+    'www'   => '/var/www',
+    'sites_available'   => '/etc/apache2/sites-available',
+    'ssl_certificates'   => '/etc/ssl/certs',
+    'awstats'   => '/etc/awstats');
 
 // writable api_lib, api_tmp directories
 $configs['tmpPath'] = array(

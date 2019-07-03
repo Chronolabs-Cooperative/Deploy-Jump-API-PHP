@@ -33,6 +33,7 @@ include_once '../include/functions.php';
 
 $pageHasForm = true;
 $pageHasHelp = true;
+global $wizard;
 
 $ctrl = new PathStuffController($wizard->configs['apiPathDefault'], $wizard->configs['tmpPath']);
 
@@ -157,34 +158,40 @@ ob_start();
 			<div class="form-group">
                 <label class="xolabel" for="ssl_certificates"><?php echo API_SSL_CERTIFICATES_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_SSL_CERTIFICATES_HELP; ?></div>
-                <input type="text" class="form-control" name="SSL_CERTIFICATES" id="ssl_certificates" value="<?php echo $ctrl->apiPath['ssl_certificates']; ?>" onchange="updPath('ssl_certificates', this.value)"/>
+                <input type="text" class="form-control" name="ssl_certificates" id="ssl_certificates" value="<?php echo $ctrl->apiPath['ssl_certificates']; ?>" onchange="updPath('ssl_certificates', this.value)"/>
                 <span id="ssl_certificatespathimg"><?php echo genPathCheckHtml('ssl_certificates', $ctrl->validPath['ssl_certificates']); ?></span>
             </div>
                         
             <div class="form-group">
                 <label class="xolabel" for="root_domain"><?php echo API_ROOT_DOMAIN_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_ROOT_DOMAIN_HELP; ?></div>
-                <input type="text" class="form-control" name="ROOT_DOMAIN" id="root_domain" value="<?php echo $ctrl->apiRootDomain; ?>"/>
+                <input type="text" class="form-control" name="root_domain" id="root_domain" value="<?php echo $ctrl->apiRootDomain; ?>"/>
+            </div>
+                        
+            <div class="form-group">
+                <label class="xolabel" for="email_domain"><?php echo API_EMAIL_DOMAIN_LABEL; ?></label>
+                <div class="xoform-help alert alert-info"><?php echo API_EMAIL_DOMAIN_HELP; ?></div>
+                <input type="text" class="form-control" name="email_domain" id="email_domain" value="<?php echo $ctrl->apiEmailDomain; ?>"/>
             </div>
             
             <div class="form-group">
                 <label class="xolabel" for="www"><?php echo API_WWW_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_WWW_HELP; ?></div>
-                <input type="text" class="form-control" name="WWW" id="www" value="<?php echo $ctrl->apiPath['www']; ?>" onchange="updPath('www', this.value)"/>
+                <input type="text" class="form-control" name="www" id="www" value="<?php echo $ctrl->apiPath['www']; ?>" onchange="updPath('www', this.value)"/>
                 <span id="wwwpathimg"><?php echo genPathCheckHtml('www', $ctrl->validPath['www']); ?></span>
             </div>
 
             <div class="form-group">
                 <label class="xolabel" for="sites_available"><?php echo API_SITES_AVAILABLE_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_SITES_AVAILABLE_HELP; ?></div>
-                <input type="text" class="form-control" name="SITES_AVAILABLE" id="sites_available" value="<?php echo $ctrl->apiPath['sites_available']; ?>" onchange="updPath('sites_available', this.value)"/>
+                <input type="text" class="form-control" name="sites_available" id="sites_available" value="<?php echo $ctrl->apiPath['sites_available']; ?>" onchange="updPath('sites_available', this.value)"/>
                 <span id="sites_availablepathimg"><?php echo genPathCheckHtml('sites_available', $ctrl->validPath['sites_available']); ?></span>
             </div>
             
             <div class="form-group">
                 <label class="xolabel" for="awstats"><?php echo API_AWSTATS_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_AWSTATS_HELP; ?></div>
-                <input type="text" class="form-control" name="AWSTATS" id="awstats" value="<?php echo $ctrl->apiPath['awstats']; ?>" onchange="updPath('awstats', this.value)"/>
+                <input type="text" class="form-control" name="awstats" id="awstats" value="<?php echo $ctrl->apiPath['awstats']; ?>" onchange="updPath('awstats', this.value)"/>
                 <span id="awstatspathimg"><?php echo genPathCheckHtml('awstats', $ctrl->validPath['awstats']); ?></span>
             </div>
         </div>

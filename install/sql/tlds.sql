@@ -1,5 +1,4 @@
 DROP TABLE `tlds`;
-
 CREATE TABLE `tlds` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `modal` enum('jump','director','focus','other') NOT NULL DEFAULT 'other',
@@ -95,10 +94,12 @@ CREATE TABLE `tlds` (
   `whitelisted` int(11) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `tlds_index` (`tld`,`class`,`fallout`),
-  KEY `tlds_search` (`ipv4`,`ipv6`,`tld`,`class`,`fallout`,`blacklisted`,`whitelisted`),
+  KEY `tlds_search` (`ip-id`,`tld`,`class`,`fallout`,`blacklisted`,`whitelisted`),
   KEY `tlds_chronologistics_idx` (`hits-last`,`hits-previous`,`create-last`,`create-previous`,`data-last`,`data-previous`,`created`,`updated`,`blacklisted`,`whitelisted`),
   KEY `tlds_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`,`quarter-start`,`quarter-ended`,`year-start`,`year-ended`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 
 
 

@@ -4,6 +4,7 @@ CREATE TABLE `locals_places` (
   `id` mediumint(250) UNSIGNED NOT NULL AUTO_INCREMENT,
   `country-id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `state-id` int(128) UNSIGNED NOT NULL DEFAULT '0',
+  `suburb-id` int(128) UNSIGNED NOT NULL DEFAULT '0',
   `place` varchar(200) NOT NULL  DEFAULT '',
   `address` tinyint,
   `places-key` varchar(64) NOT NULL  DEFAULT '',
@@ -45,7 +46,7 @@ CREATE TABLE `locals_places` (
   `created` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `updated` int(11) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `places_index` (`state-id`,`country-id`,`place`),
+  UNIQUE KEY `places_index` (`state-id`,`country-id`,`suburb-id`,`place`),
   KEY `places_search` (`longitude`,`latitude`,`places-key`),
   KEY `places_statistician_idx` (`hour-start`,`hour-ended`,`week-start`,`week-ended`,`fortnight-start`,`fortnight-ended`,`month-start`,`month-ended`,`quarter-start`,`quarter-ended`,`year-start`,`year-ended`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

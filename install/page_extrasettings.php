@@ -93,25 +93,25 @@ ob_start();
 			<div class="form-group">
                 <label class="xolabel" for="strata"><?php echo API_STRATA_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_STRATA_HELP; ?></div>
-                <input type="text" class="form-control" name="STRATA" id="strata" value="<?php echo $wizard->configs['api_url']['strata']; ?>" onchange="removeTrailing('url', this.value)"/>
+                <input type="text" class="form-control" name="strata" id="strata" value="<?php echo $wizard->configs['api_url']['strata']; ?>" onchange="removeTrailing('strata', this.value)"/>
             </div>
                         
             <div class="form-group">
                 <label class="xolabel" for="whois"><?php echo API_WHOIS_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_WHOIS_HELP; ?></div>
-                <input type="text" class="form-control" name="WHOIS" id="whois" value="<?php echo $wizard->configs['api_url']['whois']; ?>" onchange="removeTrailing('url', this.value)"/>
+                <input type="text" class="form-control" name="whois" id="whois" value="<?php echo $wizard->configs['api_url']['whois']; ?>" onchange="removeTrailing('whois', this.value)"/>
             </div>
                         
             <div class="form-group">
                 <label class="xolabel" for="whois"><?php echo API_LOOKUPS_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_LOOKUPS_HELP; ?></div>
-                <input type="text" class="form-control" name="LOOKUPS" id="whois" value="<?php echo $wizard->configs['api_url']['lookups']; ?>" onchange="removeTrailing('url', this.value)"/>
+                <input type="text" class="form-control" name="lookups" id="lookups" value="<?php echo $wizard->configs['api_url']['lookups']; ?>" onchange="removeTrailing('lookups', this.value)"/>
             </div>
                         
             <div class="form-group">
                 <label class="xolabel" for="places"><?php echo API_PLACES_LABEL; ?></label>
                 <div class="xoform-help alert alert-info"><?php echo API_PLACES_HELP; ?></div>
-                <input type="text" class="form-control" name="PLACES" id="places" value="<?php echo $wizard->configs['api_url']['places']; ?>" onchange="removeTrailing('url', this.value)"/>
+                <input type="text" class="form-control" name="places" id="places" value="<?php echo $wizard->configs['api_url']['places']; ?>" onchange="removeTrailing('places', this.value)"/>
             </div>
             
             <div class="form-group">
