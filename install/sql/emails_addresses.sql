@@ -15,6 +15,6 @@ CREATE TABLE `emails_addresses` (
  `created` int(11) UNSIGNED NOT NULL DEFAULT '0',
  `updated` int(11) UNSIGNED NOT NULL DEFAULT '0',
  PRIMARY KEY (`id`),
- KEY `email_addresses_idx` (`email`,`name`,`api-uid`,`last-email-id`),
- ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ KEY `email_addresses_idx` (`email`,`name`,`api-uid`,`last-email-id`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

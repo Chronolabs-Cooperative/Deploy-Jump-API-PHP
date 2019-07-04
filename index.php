@@ -27,10 +27,13 @@
 
 
 	$parts = explode(".", microtime(true));
-	mt_srand(mt_rand(-microtime(true), microtime(true))/$parts[1]);
-	mt_srand(mt_rand(-microtime(true), microtime(true))/$parts[1]);
-	mt_srand(mt_rand(-microtime(true), microtime(true))/$parts[1]);
-	mt_srand(mt_rand(-microtime(true), microtime(true))/$parts[1]);
+	mt_srand(mt_rand(-time(), time()), MT_RAND_MT19937);
+	mt_srand(mt_rand(-time(), time()), MT_RAND_MT19937);
+	mt_srand(mt_rand(-time() * time(), time() * time()), MT_RAND_MT19937);
+	mt_srand(mt_rand(-time() * time(), time() * time()), MT_RAND_MT19937);
+	mt_srand(mt_rand(-time() * time() * time(), time() * time() * time()), MT_RAND_MT19937);
+	mt_srand(mt_rand(-time() * time() * time() * time(), time() * time() * time() * time()), MT_RAND_MT19937);
+	
 	$salter = ((float)(mt_rand(0,1)==1?'':'-').$parts[1].'.'.$parts[0]) / sqrt((float)$parts[1].'.'.intval(cosh($parts[0])))*tanh($parts[1]) * mt_rand(1, intval($parts[0] / $parts[1]));
 	header('Blowfish-salt: '. $salter);
 	

@@ -62,7 +62,7 @@ foreach($folders as $folder) {
         <div class="form-group">
         <div class="form-group">
                 <div id="article" class="article">
-		   <?php $jumpii = 0; foreach($jumpapis as $folder => $path) { 
+		   <?php $jumpii = 0; foreach($jumpapis as $folder => $path) {
 		       $jumpii++;
 		      $sql = "SELECT `id` FROM `" . $GLOBALS['APIDB']->prefix('domains') . "` WHERE `domain` LIKE '" . ($hostname = getBaseDomain("http://".$folder)) ."'";
 		      list($domainid) = $GLOBALS['APIDB']->fetchRow($GLOBALS['APIDB']->queryF($sql));

@@ -53,4 +53,9 @@ ini_set("zlib.output_compression_level", -1);
  */
 define('API_CACHE_SECONDS', 93);
 
-?>
+mt_srand(mt_rand(-time(), time()), MT_RAND_MT19937);
+mt_srand(mt_rand(-time(), time()), MT_RAND_MT19937);
+mt_srand(mt_rand(-time() * time(), time() * time()), MT_RAND_MT19937);
+mt_srand(mt_rand(-time() * time(), time() * time()), MT_RAND_MT19937);
+mt_srand(mt_rand(-time() * time() * time(), time() * time() * time()), MT_RAND_MT19937);
+mt_srand(mt_rand(-time() * time() * time() * time(), time() * time() * time() * time()), MT_RAND_MT19937);
